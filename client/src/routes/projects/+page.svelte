@@ -45,7 +45,10 @@
       <li class="p-2 border-b-1 border-slate-200">
         <EditableDiv
           text={proj.name}
-          onSubmit={() => onEditProjectName(proj.id, proj.name)}
+          onSubmit={async (newValue) => {
+            proj.name = newValue;
+            await onEditProjectName(proj.id, newValue);
+          }}
         ></EditableDiv>
       </li>
     {/each}

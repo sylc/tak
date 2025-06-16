@@ -224,6 +224,7 @@ webui.bind("createProject", async (e: WebUI.Event) => {
 webui.bind("updateProjectName", async (e: WebUI.Event) => {
   const id = e.arg.string(0);
   const name = e.arg.string(1);
+  console.log("project newName", name);
   await kv.set(["projects", id], { id, name });
 });
 
@@ -237,7 +238,7 @@ webui.bind("projects", async (_e: WebUI.Event) => {
     if (entry.key.length > 2) continue; // keys like [projects, "abc", timers, "abe"] will be skipped.
     projects.push(entry.value!);
   }
-  return JSON.stringify(projects);
+  return JSON.stringify(projects.sort((a, b) => a.name.localeCompare(b.name)));
 });
 
 //// TBD reports
