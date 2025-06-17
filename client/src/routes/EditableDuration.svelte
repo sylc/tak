@@ -16,6 +16,7 @@
     time: format(new Date(start), "HH:mm"),
     endTime: format(new Date(stop), "HH:mm"),
   });
+  let isDirty = $state(false);
 
   let selectedTimeRangeFullDate = $derived.by(() => {
     return {
@@ -30,19 +31,27 @@
     data: { time: string; endTime: string; [key: string]: string },
   ): void {
     if (data) {
-      selectedTimeRange = {
-        time: data.time,
-        endTime: data.endTime,
-      };
+      if (
+        data.time !== selectedTimeRange.time ||
+        data.endTime !== selectedTimeRange.endTime
+      ) {
+        isDirty = true;
+        selectedTimeRange = {
+          time: data.time,
+          endTime: data.endTime,
+        };
+      }
     }
   }
 
   function onClose(e: ToggleEvent) {
     if (e.newState === "closed") {
-      onSubmit(
-        selectedTimeRangeFullDate.time,
-        selectedTimeRangeFullDate.endTime,
-      );
+      if (isDirty) {
+        onSubmit(
+          selectedTimeRangeFullDate.time,
+          selectedTimeRangeFullDate.endTime,
+        );
+      }
     }
   }
 
@@ -67,18 +76,19 @@
     placement="bottom"
     ontoggle={onClose}
   >
-    <Duration
-      duration={formatDuration(
-        selectedTimeRangeFullDate.time,
-        selectedTimeRangeFullDate.endTime,
-      )}
-    >
-    </Duration>
     <Timepicker
       type="range"
       onselect={handleRangeChange}
       value={selectedTimeRange.time}
       endValue={selectedTimeRange.endTime}
     />
+    {#if isDirty}
+      <Duration
+        duration={formatDuration(
+          selectedTimeRangeFullDate.time,
+          selectedTimeRangeFullDate.endTime,
+        )}
+      />
+    {/if}
   </Popover>
 </div>

@@ -284,7 +284,7 @@
                   />
                 </div>
                 <div>
-                  <div>
+                  <div class="text-xs">
                     {formatDay(taskForDay.start)}
                     - {formatDay(taskForDay.stop)}
                   </div>
