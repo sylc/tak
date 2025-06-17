@@ -5,7 +5,10 @@ working on.
 
 ![alt text](image.png)
 
-To develop: `deno task dev`
+To develop:
+
+- `deno task install`
+- `deno task dev`
 
 To build an executable: `deno task dist`
 

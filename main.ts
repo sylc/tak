@@ -14,8 +14,13 @@ export const compositeKeyStart = (timer: { start: string; id: string }) => {
   return `${timer.start}__${timer.id}`;
 };
 
+const isDev = Deno.env.get("DEV") === "true";
+
 const webui = new WebUI();
 WebUI.setFolderMonitor(true);
+if (isDev) {
+  Deno.mkdirSync("./client/build", { recursive: true });
+}
 webui.setRootFolder("./client/build");
 
 Deno.mkdirSync("./.tak", { recursive: true });
@@ -308,7 +313,7 @@ async function getByWeeklyAndProjects(startOfWeek: string) {
 
 webui.setPort(8081);
 
-if (Deno.env.get("DEV") === "true") {
+if (isDev) {
   // For developing use the below
   //
   // Show a new window and point to our custom web server
@@ -317,7 +322,9 @@ if (Deno.env.get("DEV") === "true") {
   await webui.showBrowser("http://localhost:5173/", WebUI.Browser.AnyBrowser);
 } else {
   // use the build
-  const index = await Deno.readTextFile("./client/build/index.html");
+  const index = await Deno.readTextFile(
+    import.meta.dirname + "/client/build/index.html",
+  );
   await webui.show(index);
 }
 
