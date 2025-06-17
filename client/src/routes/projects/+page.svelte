@@ -20,6 +20,11 @@
     await webui.updateProjectName(id, newValue);
     projects.projects = JSON.parse(await webui.projects());
   };
+
+  const onArchive = async (id: string, newState: boolean) => {
+    await webui.archiveProject(id, newState);
+    projects.projects = JSON.parse(await webui.projects());
+  };
 </script>
 
 <div class="p-2">
@@ -42,14 +47,30 @@
   </ButtonGroup>
   <ul class="mt-2">
     {#each projects.projects as proj}
-      <li class="p-2 border-b-1 border-slate-200">
+      <li
+        class={`p-2 border-b-1 border-slate-200 flex justify-between
+          ${proj.archived ? "opacity-50" : ""}`}
+      >
         <EditableDiv
           text={proj.name}
           onSubmit={async (newValue) => {
             proj.name = newValue;
             await onEditProjectName(proj.id, newValue);
           }}
-        ></EditableDiv>
+          withPencil="hover"
+        />
+        <Button
+          color="gray"
+          outline
+          onclick={() => onArchive(proj.id, !proj.archived)}
+          size="xs"
+        >
+          {#if proj.archived}
+            Un-archive
+          {:else}
+            Archive
+          {/if}
+        </Button>
       </li>
     {/each}
   </ul>

@@ -273,7 +273,8 @@
                   <Select
                     size="sm"
                     class="grow-1"
-                    items={projects.projects.map((p) => ({
+                    items={projects.projects.filter((p) => !p.archived)
+                    .map((p) => ({
                       value: p.id,
                       name: p.name,
                     }))}

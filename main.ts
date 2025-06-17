@@ -225,7 +225,19 @@ webui.bind("updateProjectName", async (e: WebUI.Event) => {
   const id = e.arg.string(0);
   const name = e.arg.string(1);
   console.log("project newName", name);
-  await kv.set(["projects", id], { id, name });
+  const project = (await kv.get<Project>(["projects", id])).value!;
+  await kv.set(["projects", id], { ...project, name });
+});
+
+webui.bind("archiveProject", async (e: WebUI.Event) => {
+  const id = e.arg.string(0);
+  const forceState = e.arg.string(1);
+  console.log("archiving project", name, forceState);
+  const project = (await kv.get<Project>(["projects", id])).value!;
+  await kv.set(["projects", id], {
+    ...project,
+    archived: forceState ? new Date().toISOString() : undefined,
+  });
 });
 
 // getProjects

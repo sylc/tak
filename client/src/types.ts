@@ -9,6 +9,7 @@ export interface Timer {
 export interface Project {
   id: string;
   name: string;
+  archived?: string | undefined;
 }
 
 export interface WeeklyByProjectReport {
