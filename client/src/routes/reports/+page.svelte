@@ -17,10 +17,16 @@
     ArrowRightOutline,
   } from "flowbite-svelte-icons";
   import { addDays } from "date-fns";
+  import Duration from "../Duration.svelte";
 
   let weeklyReport: Record<string, WeeklyByProjectReport[]> = $state({});
   let days = $state({
     ...getWeekKey({ format: "EEE dd/MM" }),
+  });
+
+  let weeklyTotal = $derived.by(() => {
+    const dataFortheWeek = weeklyReport[days.weekKey as string] || [];
+    return dataFortheWeek.reduce((acc, curr) => acc += curr.msTotal, 0);
   });
 
   let selectedProjectData = $derived.by(() => {
@@ -74,6 +80,12 @@
     /></Button>
 </div>
 <div>
+  <div class="flex px-2 pb-2">
+    Week Total:&nbsp;<Duration
+      duration={weeklyTotal}
+      type="hourFractions"
+    />h
+  </div>
   <Table>
     <TableHead>
       <TableHeadCell>Project</TableHeadCell>
@@ -106,7 +118,7 @@
 </div>
 
 {#snippet row(ms: number)}
-  <TableBodyCell class={ms > 0 ? "font-bold text-black" : ""}>{
-      msToHours(ms)
-    }h</TableBodyCell>
+  <TableBodyCell
+    class={ms > 0 ? "font-bond text-black" : "font-light text-slate-400"}
+  >{msToHours(ms)}h</TableBodyCell>
 {/snippet}
