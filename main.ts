@@ -2,7 +2,8 @@
 
 import { WebUI } from "jsr:@webui/deno-webui";
 import { ulid } from "jsr:@std/ulid";
-import { copy } from "jsr:@std/fs/copy";
+import * as media_types from "jsr:@std/media-types";
+import { extname } from "jsr:@std/path@^1.1.0/extname";
 
 import { addDays, endOfWeek, getDay, getWeek, getYear } from "npm:date-fns";
 import type {
@@ -315,10 +316,6 @@ try {
   webui.setPort(8081);
 
   if (isDev) {
-    // For developing use the below
-    WebUI.setFolderMonitor(true);
-    Deno.mkdirSync("./client/build", { recursive: true });
-    webui.setRootFolder("./client/build");
     //
     // Show a new window and point to our custom web server
     // Assuming the custom web server is running on port
@@ -327,20 +324,40 @@ try {
   } else {
     // Once compiled, the webUi webserver do not have access
     // to the static files embeded in the
-    // binary, so we copy them to the local folder.
-    try {
-      await Deno.remove("./.tak/build", { recursive: true });
-    } catch (error) {
-      if (!(error instanceof Deno.errors.NotFound)) {
-        throw error;
+    // binary, we need a special handler for this.
+    const getEmbeddedFile = async (
+      contentType: string,
+      filename: string,
+    ): Promise<Uint8Array> => {
+      const path = Deno.build.standalone
+        ? import.meta.dirname + "/client/build" + filename
+        : "./client/build" + filename;
+      const contentStr = await Deno.readTextFile(path);
+      const content = new TextEncoder().encode(contentStr);
+      const header = [
+        "HTTP/1.1 200 OK",
+        `Content-Type: ${contentType}`,
+        "",
+        "",
+      ].join("\r\n");
+      const headerBytes = new TextEncoder().encode(header);
+      const response = new Uint8Array(headerBytes.length + content.length);
+      response.set(headerBytes, 0);
+      response.set(content, headerBytes.length);
+      return response;
+    };
+
+    // Custom file handler
+    async function myFileHandler(myUrl: URL) {
+      let filePath = myUrl.pathname;
+      if (filePath === "/") {
+        filePath = "/index.html";
       }
-      // Do nothing...
+      const contentTypeValue = media_types.contentType(extname(filePath));
+      return (await getEmbeddedFile(contentTypeValue || "text/html", filePath));
     }
-    await copy(import.meta.dirname + "/client/build", "./.tak/build", {
-      overwrite: true,
-    });
-    webui.setRootFolder("./.tak/build");
-    // use the build
+    webui.setFileHandler(myFileHandler);
+
     const index = await Deno.readTextFile(
       import.meta.dirname + "/client/build/index.html",
     );
