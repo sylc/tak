@@ -49,7 +49,7 @@ try {
     const newName = e.arg.string(0);
     console.log("update active timer name:", newName);
 
-    const timer = (await kv.get<Timer>(["activeTimer"])).value!;
+    const timer = (await kv.get<Timer>(["activeTimer"])).value;
     await kv.set(["activeTimer"], { ...timer, name: newName.trim() });
   });
 
@@ -91,7 +91,7 @@ try {
   // the timers index
   async function stopActive() {
     const activeTimer = (await kv.get<Timer>(["activeTimer"])).value;
-    if (!activeTimer) return;
+    if (!activeTimer || !activeTimer.start) return;
     await kv.atomic()
       .set(["activeTimer"], null)
       .set(["timers", activeTimer.id], {

@@ -18,16 +18,16 @@
   import { projects, settings } from "./states.svelte";
   import EditableDuration from "./EditableDuration.svelte";
 
-  let status = $state<Timer>({ id: "", name: "", start: "", stop: "" });
+  let status = $state<Partial<Omit<Timer, "id">>>({
+    name: "",
+    start: "",
+    stop: "",
+  });
   let showInvert = $state(false);
-
-  let formatted = $derived(
-    format(new Date(status.start), "dd/MM"),
-  );
 
   const onActiveTimerTimeChange = async (data?: { time: string }) => {
     console.log(data);
-    if (data) {
+    if (data && status.start) {
       const start = (parse(data.time, "HH:mm", new Date(status.start)))
         .toISOString();
       status.start = start;
@@ -99,17 +99,16 @@
   });
 
   const onToggleStart = async (forceState?: "start" | "stop") => {
-    if (status.start === "") {
+    if (!status.start) {
       // start a new task
       const taskId = ulid();
       status.start = new Date().toISOString();
-      status.id = taskId;
 
       await webui.startActiveTimer(taskId, status.name);
     } else {
       if (forceState === "start") return; // because forceState, not stopping
       await webui.stopActiveTimer();
-      status = { start: "", id: "", name: "", stop: "" };
+      status = { start: "", name: "", stop: "" };
       listOfTimers = JSON.parse(await webui.timers());
     }
   };
@@ -171,7 +170,7 @@
       }}
       placeholder="What are you working on?"
     />
-    <TimerDisplay start={status.start} />
+    <TimerDisplay start={status.start || ""} />
     <Button
       onclick={() => onToggleStart()}
       color={status.start === "" ? "green" : "red"}
@@ -186,7 +185,7 @@
 
   <div class="flex p-2 justify-between items-center">
     <div class="bg-yellow-100 flex gap-2">
-      {#if status.start !== ""}
+      {#if status.start}
         <div>
           {format(new Date(status.start), "dd/MM")}
         </div>
