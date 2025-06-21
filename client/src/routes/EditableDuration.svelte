@@ -45,6 +45,7 @@
   }
 
   function onClose(e: ToggleEvent) {
+    e.stopImmediatePropagation();
     if (e.newState === "closed") {
       if (isDirty) {
         onSubmit(
@@ -66,29 +67,36 @@
     }}
     class="hover:bg-slate-200 hover:font-semibold px-2 rounded-md"
   >
-    <Duration duration={formatDuration(start, stop)}> </Duration>
+    <Duration
+      duration={formatDuration(start, stop)}
+      type="hourFractions"
+      suffix="h"
+    >
+    </Duration>
   </div>
-  <Popover
-    class="text-sm font-light"
-    title="Popover title"
-    triggeredBy={`#t-${id}`}
-    trigger="click"
-    placement="bottom"
-    ontoggle={onClose}
-  >
-    <Timepicker
-      type="range"
-      onselect={handleRangeChange}
-      value={selectedTimeRange.time}
-      endValue={selectedTimeRange.endTime}
-    />
-    {#if isDirty}
-      <Duration
-        duration={formatDuration(
-          selectedTimeRangeFullDate.time,
-          selectedTimeRangeFullDate.endTime,
-        )}
+  {#key "t-" + id}
+    <Popover
+      class="text-sm font-light"
+      title=""
+      triggeredBy={`#t-${id}`}
+      trigger="click"
+      placement="bottom"
+      ontoggle={onClose}
+    >
+      <Timepicker
+        type="range"
+        onselect={handleRangeChange}
+        value={selectedTimeRange.time}
+        endValue={selectedTimeRange.endTime}
       />
-    {/if}
-  </Popover>
+      {#if isDirty}
+        <Duration
+          duration={formatDuration(
+            selectedTimeRangeFullDate.time,
+            selectedTimeRangeFullDate.endTime,
+          )}
+        />
+      {/if}
+    </Popover>
+  {/key}
 </div>

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { PenOutline } from "flowbite-svelte-icons";
+  import type { FocusEventHandler } from "svelte/elements";
 
   let {
     text,
@@ -15,6 +16,10 @@
 
   let showInput = $state(false);
   let newValue = $state(text);
+
+  $effect(() => {
+    newValue = text; // reset internal state when prop changes
+  });
 
   const onblur = () => {
     // save value in db

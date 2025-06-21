@@ -7,13 +7,20 @@
     } | number;
 
     type?: "hourFractions";
+    suffix?: string;
+
+    // allow to calculate the remaining
     base?: number | undefined;
   }
-  const { duration, type, base }: Props = $props();
+  const { duration, type, base, suffix }: Props = $props();
 
   const durationUnified = $derived.by(() => {
     if (typeof duration !== "number") {
-      return { ...duration, hourFractions: "TBD" };
+      return {
+        ...duration,
+        hourFractions: (duration.hours + duration.minutes / 60)
+          .toFixed(2),
+      };
     }
     const seconds = Math.floor((duration / 1000) % 60);
     const minutes = Math.floor((duration / (1000 * 60)) % 60);
@@ -36,7 +43,7 @@
 
 {#if type === "hourFractions"}
   <div>
-    {durationUnified.hourFractions}
+    {durationUnified.hourFractions}{suffix}
   </div>
 {:else}
   <div>

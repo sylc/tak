@@ -238,8 +238,8 @@
             <div class="flex-col gap-x-2 justify-between border-t-1 border-slate-300 py-1">
               <!-- Row 1 -->
               <div class="flex justify-between">
-                <div class="flex grow-1">
-                  <div class="grow-1">
+                <div class="flex grow-1 justify-between">
+                  <div class="min-w-4">
                     <EditableDiv
                       text={taskForDay.name}
                       onSubmit={(newValue) =>
@@ -247,13 +247,15 @@
                       withPencil="hover"
                     />
                   </div>
-                  <EditableDuration
-                    id={taskForDay.id}
-                    start={taskForDay.start}
-                    stop={taskForDay.stop}
-                    onSubmit={(start, stop) =>
-                    onEditTimeRange(taskForDay.id, start, stop)}
-                  />
+                  {#key taskForDay.id}
+                    <EditableDuration
+                      id={taskForDay.id}
+                      start={taskForDay.start}
+                      stop={taskForDay.stop}
+                      onSubmit={(start, stop) =>
+                      onEditTimeRange(taskForDay.id, start, stop)}
+                    />
+                  {/key}
                 </div>
                 <div>
                   <Button
@@ -271,7 +273,7 @@
                   <!-- <FolderOutline /> -->
                   <Select
                     size="sm"
-                    class="grow-1"
+                    class="grow-1 border-0"
                     items={projects.projects.filter((p) => !p.archived)
                     .map((p) => ({
                       value: p.id,
@@ -279,7 +281,6 @@
                     }))}
                     value={taskForDay.projectId || ""}
                     onchange={(e) => onProjectChange(e, taskForDay.id)}
-                    underline
                     placeholder="Project"
                   />
                 </div>
