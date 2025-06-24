@@ -151,7 +151,7 @@
   };
 </script>
 
-<div class="">
+<div class="flex flex-col" style="max-height: calc(100vh - 40px)">
   <div class="p-2 flex space-x-2">
     <Input
       size="sm"
@@ -222,7 +222,7 @@
       </div>
     </div>
   </div>
-  <div>
+  <div class="grow-1 overflow-auto">
     <div></div>
     <hr />
     {#each tasksByDay as tDay}
