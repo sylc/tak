@@ -25,6 +25,7 @@ try {
   const webui = new WebUI();
 
   Deno.mkdirSync("./.tak", { recursive: true });
+  Deno.mkdirSync("./.tak/logs", { recursive: true });
   const kv = await Deno.openKv("./.tak/db");
 
   // Active timer
@@ -367,8 +368,12 @@ try {
 } catch (err) {
   if (isDev) throw err;
   else {
-    Deno.writeTextFileSync("./.tak/log.txt", `${(err as any).toString()}\n`, {
-      append: true,
-    });
+    Deno.writeTextFileSync(
+      "./.tak/logs/log.txt",
+      `${(err as any).toString()}\n`,
+      {
+        append: true,
+      },
+    );
   }
 }

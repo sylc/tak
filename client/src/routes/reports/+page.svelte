@@ -89,7 +89,7 @@
   <Table>
     <TableHead>
       <TableHeadCell>Project</TableHeadCell>
-      <TableHeadCell>total</TableHeadCell>
+      <TableHeadCell class="text-amber-700 border-r-1">total</TableHeadCell>
       <TableHeadCell>{days.day1}</TableHeadCell>
       <TableHeadCell>{days.day2}</TableHeadCell>
       <TableHeadCell>{days.day3}</TableHeadCell>
@@ -103,7 +103,7 @@
         <TableBodyRow>
           <TableBodyCell>{getProjectName(proj.projectKey)}</TableBodyCell>
 
-          {@render row(proj.msTotal)}
+          {@render row(proj.msTotal, "text-amber-700 border-r-1")}
           {@render row(proj.byDays[0])}
           {@render row(proj.byDays[1])}
           {@render row(proj.byDays[2])}
@@ -117,8 +117,10 @@
   </Table>
 </div>
 
-{#snippet row(ms: number)}
+{#snippet row(ms: number, classes?: string)}
   <TableBodyCell
-    class={ms > 0 ? "font-bond text-black" : "font-light text-slate-400"}
+    class={`${
+      ms > 0 ? "font-bond text-black" : "font-light text-slate-400"
+    } ${classes}`}
   >{msToHours(ms)}h</TableBodyCell>
 {/snippet}
