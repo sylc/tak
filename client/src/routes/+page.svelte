@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { Button, Input, Select, Timepicker } from "flowbite-svelte";
+  import { Button, Input, Timepicker, Toggle } from "flowbite-svelte";
   import {
     FolderOutline,
     PlayOutline,
@@ -25,6 +25,7 @@
     stop: "",
   });
   let showInvert = $state(false);
+  let onlyNoProject = $state(false);
 
   const onActiveTimerTimeChange = async (data?: { time: string }) => {
     console.log(data);
@@ -225,8 +226,10 @@
     </div>
   </div>
   <div class="grow-1 overflow-auto">
-    <div></div>
     <hr />
+    <div>
+      <Toggle bind:checked={onlyNoProject}>Only tasks with No Project</Toggle>
+    </div>
     {#each tasksByDay as tDay}
       <div class="bg-white my-2 px-2">
         <div class="flex font-semibold text-slate-700 text-lg">
@@ -237,50 +240,52 @@
         </div>
         <div class="flex flex-col gap-y-1">
           {#each tDay.tasks as taskForDay}
-            <div class="flex-col gap-x-2 justify-between border-t-1 border-slate-300 py-1">
-              <!-- Row 1 -->
-              <div class="flex justify-between">
-                <div class="flex grow-1 justify-between">
-                  <div class="min-w-4">
-                    <EditableDiv
-                      text={taskForDay.name}
-                      onSubmit={(newValue) =>
-                      updateTimerName(taskForDay.id, newValue)}
-                      withPencil="hover"
-                    />
+            {#if (onlyNoProject && (!taskForDay.projectId ||
+            taskForDay.projectId === "NO_PROJECT")) || !onlyNoProject}
+              <div class="flex-col gap-x-2 justify-between border-t-1 border-slate-300 py-1">
+                <!-- Row 1 -->
+                <div class="flex justify-between">
+                  <div class="flex grow-1 justify-between">
+                    <div class="min-w-4">
+                      <EditableDiv
+                        text={taskForDay.name}
+                        onSubmit={(newValue) =>
+                        updateTimerName(taskForDay.id, newValue)}
+                        withPencil="hover"
+                      />
+                    </div>
+                    {#key taskForDay.id}
+                      <EditableDuration
+                        id={taskForDay.id}
+                        start={taskForDay.start}
+                        stop={taskForDay.stop}
+                        onSubmit={(start, stop) =>
+                        onEditTimeRange(taskForDay.id, start, stop)}
+                      />
+                    {/key}
                   </div>
-                  {#key taskForDay.id}
-                    <EditableDuration
-                      id={taskForDay.id}
-                      start={taskForDay.start}
-                      stop={taskForDay.stop}
-                      onSubmit={(start, stop) =>
-                      onEditTimeRange(taskForDay.id, start, stop)}
+                  <div>
+                    <Button
+                      onclick={() => onDeleteTimer(taskForDay.id)}
+                      size="xs"
+                      class="flex-end"
+                    >
+                      <TrashBinOutline size="xs" />
+                    </Button>
+                  </div>
+                </div>
+                <!-- Row 2 -->
+                <div class="flex justify-between">
+                  <div class="min-w-46 flex align-middle items-baseline">
+                    <!-- <FolderOutline /> -->
+                    <DropdownWithSearch
+                      items={projects.projects.filter((p) => !p.archived)}
+                      selected={projectsByKey()[taskForDay.projectId || ""]
+                      ?.name || ""}
+                      onSelection={(newId) =>
+                      onProjectChange(newId, taskForDay.id)}
                     />
-                  {/key}
-                </div>
-                <div>
-                  <Button
-                    onclick={() => onDeleteTimer(taskForDay.id)}
-                    size="xs"
-                    class="flex-end"
-                  >
-                    <TrashBinOutline size="xs" />
-                  </Button>
-                </div>
-              </div>
-              <!-- Row 2 -->
-              <div class="flex justify-between">
-                <div class="min-w-46 flex align-middle items-baseline">
-                  <!-- <FolderOutline /> -->
-                  <DropdownWithSearch
-                    items={projects.projects.filter((p) => !p.archived)}
-                    selected={projectsByKey()[taskForDay.projectId || ""]
-                    ?.name || ""}
-                    onSelection={(newId) =>
-                    onProjectChange(newId, taskForDay.id)}
-                  />
-                  <!-- <Select
+                    <!-- <Select
                     size="sm"
                     class="grow-1 border-0"
                     items={projects.projects.filter((p) => !p.archived)
@@ -292,21 +297,22 @@
                     onchange={(e) => onProjectChange(e, taskForDay.id)}
                     placeholder="Project"
                   /> -->
-                </div>
-                <div>
-                  <div class="text-xs">
-                    {formatDay(taskForDay.start)}
-                    - {formatDay(taskForDay.stop)}
                   </div>
-                  <button
-                    onclick={() => onRestart(taskForDay.id)}
-                    class="hover:bg-green-300 px-2 rounded-md border border-gray-500"
-                  >
-                    re-start
-                  </button>
+                  <div>
+                    <div class="text-xs">
+                      {formatDay(taskForDay.start)}
+                      - {formatDay(taskForDay.stop)}
+                    </div>
+                    <button
+                      onclick={() => onRestart(taskForDay.id)}
+                      class="hover:bg-green-300 px-2 rounded-md border border-gray-500"
+                    >
+                      re-start
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            {/if}
           {/each}
         </div>
       </div>
