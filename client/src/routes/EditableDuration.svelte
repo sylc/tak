@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { Popover, Timepicker } from "flowbite-svelte";
+  import {
+    type DateOrRange,
+    Datepicker,
+    P,
+    Popover,
+    Timepicker,
+  } from "flowbite-svelte";
   import Duration from "./Duration.svelte";
   import { formatDuration } from "./utils";
   import { format, parse } from "date-fns";
@@ -10,19 +16,24 @@
     onSubmit: (start: string, stop: string) => Promise<void>;
     id: string;
   }
-  const { id, start, stop, onSubmit }: Props = $props();
+  let { id, start, stop, onSubmit }: Props = $props();
+  let startD = $state(new Date(start));
+  let stopD = $state(new Date(stop));
+  let isOpen = $state(false);
 
   let selectedTimeRange = $state({
-    time: format(new Date(start), "HH:mm"),
-    endTime: format(new Date(stop), "HH:mm"),
+    // svelte-ignore state_referenced_locally
+    time: format(startD, "HH:mm"),
+    // svelte-ignore state_referenced_locally
+    endTime: format(stopD, "HH:mm"),
   });
   let isDirty = $state(false);
 
   let selectedTimeRangeFullDate = $derived.by(() => {
     return {
-      time: parse(selectedTimeRange.time, "HH:mm", new Date(start))
+      time: parse(selectedTimeRange.time, "HH:mm", new Date(startD))
         .toISOString(),
-      endTime: parse(selectedTimeRange.endTime, "HH:mm", new Date(stop))
+      endTime: parse(selectedTimeRange.endTime, "HH:mm", new Date(stopD))
         .toISOString(),
     };
   });
@@ -56,6 +67,10 @@
     }
   }
 
+  function handleDateSelect(detail: DateOrRange) {
+    isDirty = true;
+  }
+
   let showInput = $state(false);
 </script>
 
@@ -82,21 +97,53 @@
       trigger="click"
       placement="bottom"
       ontoggle={onClose}
+      bind:isOpen
     >
-      <Timepicker
-        type="range"
-        onselect={handleRangeChange}
-        value={selectedTimeRange.time}
-        endValue={selectedTimeRange.endTime}
-      />
-      {#if isDirty}
-        <Duration
-          duration={formatDuration(
-            selectedTimeRangeFullDate.time,
-            selectedTimeRangeFullDate.endTime,
-          )}
+      <div class="flex flex-col gap-y-2">
+        <div class="flex align-middle space-x-2">
+          <p class="">
+            Start date
+          </p>
+          <Datepicker
+            bind:value={startD}
+            onselect={handleDateSelect}
+            dateFormat={{ year: "numeric", month: "short", day: "2-digit" }}
+          />
+        </div>
+        <div class="flex align-middle space-x-2">
+          <p class="">
+            Stop date
+          </p>
+          <Datepicker
+            bind:value={stopD}
+            onselect={handleDateSelect}
+            dateFormat={{ year: "numeric", month: "short", day: "2-digit" }}
+          />
+        </div>
+        <Timepicker
+          type="range"
+          onselect={handleRangeChange}
+          value={selectedTimeRange.time}
+          endValue={selectedTimeRange.endTime}
         />
-      {/if}
+        {#if isDirty}
+          <Duration
+            duration={formatDuration(
+              selectedTimeRangeFullDate.time,
+              selectedTimeRangeFullDate.endTime,
+            )}
+          />
+        {/if}
+        <button
+          onclick={() => {
+            isDirty = false;
+            isOpen = false;
+          }}
+          class="w-full"
+        >
+          cancel
+        </button>
+      </div>
     </Popover>
   {/key}
 </div>

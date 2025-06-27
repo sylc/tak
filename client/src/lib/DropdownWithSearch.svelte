@@ -1,13 +1,5 @@
 <script lang="ts">
-  import {
-    Button,
-    Checkbox,
-    Dropdown,
-    DropdownGroup,
-    DropdownHeader,
-    DropdownItem,
-    Search,
-  } from "flowbite-svelte";
+  import { Button, Dropdown, DropdownGroup, Search } from "flowbite-svelte";
   import { ChevronDownOutline } from "flowbite-svelte-icons";
 
   interface Props {
