@@ -15,8 +15,9 @@
   import Duration from "./Duration.svelte";
   import EditableDiv from "./EditableDiv.svelte";
   import type { Timer } from "../types";
-  import { projects, settings } from "./states.svelte";
+  import { projects, projectsByKey, settings } from "./states.svelte";
   import EditableDuration from "./EditableDuration.svelte";
+  import DropdownWithSearch from "$lib/DropdownWithSearch.svelte";
 
   let status = $state<Partial<Omit<Timer, "id">>>({
     name: "",
@@ -123,11 +124,12 @@
     listOfTimers = JSON.parse(await webui.timers());
   };
 
-  const onProjectChange = async (e: Event, timerId: string) => {
-    const value = (e.target as HTMLSelectElement).value;
-    console.log(value);
-    if (typeof value !== "string") return;
-    await webui.setProject(timerId, value);
+  const onProjectChange = async (
+    projectId: string | "NO_PROJECT",
+    timerId: string,
+  ) => {
+    await webui.setProject(timerId, projectId);
+    listOfTimers = JSON.parse(await webui.timers());
   };
 
   const onEditTimeRange = async (
@@ -271,7 +273,14 @@
               <div class="flex justify-between">
                 <div class="min-w-46 flex align-middle items-baseline">
                   <!-- <FolderOutline /> -->
-                  <Select
+                  <DropdownWithSearch
+                    items={projects.projects.filter((p) => !p.archived)}
+                    selected={projectsByKey()[taskForDay.projectId || ""]
+                    ?.name || ""}
+                    onSelection={(newId) =>
+                    onProjectChange(newId, taskForDay.id)}
+                  />
+                  <!-- <Select
                     size="sm"
                     class="grow-1 border-0"
                     items={projects.projects.filter((p) => !p.archived)
@@ -282,7 +291,7 @@
                     value={taskForDay.projectId || ""}
                     onchange={(e) => onProjectChange(e, taskForDay.id)}
                     placeholder="Project"
-                  />
+                  /> -->
                 </div>
                 <div>
                   <div class="text-xs">
