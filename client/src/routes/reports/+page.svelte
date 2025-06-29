@@ -11,10 +11,12 @@
   import { onMount } from "svelte";
   import type { WeeklyByProjectReport } from "../../types";
   import { projectsByKey } from "../states.svelte";
-  import { getWeekKey, msToHours } from "../utils";
+  import { formatDuration, getWeekKey, msToHours } from "../utils";
   import {
     ArrowLeftOutline,
     ArrowRightOutline,
+    ChevronDownOutline,
+    ChevronUpOutline,
   } from "flowbite-svelte-icons";
   import { addDays } from "date-fns";
   import Duration from "../Duration.svelte";
@@ -23,6 +25,7 @@
   let days = $state({
     ...getWeekKey({ format: "EEE dd/MM" }),
   });
+  let openRow: string | undefined | null = $state();
 
   let weeklyTotal = $derived.by(() => {
     const dataFortheWeek = weeklyReport[days.weekKey as string] || [];
@@ -66,6 +69,10 @@
       await webui.getByWeeklyAndProjects(days.day1d.toISOString()),
     );
   };
+
+  const onNameClick = (pKey: string) => {
+    openRow = openRow === pKey ? null : pKey;
+  };
 </script>
 
 <div class="flex p-2 align-middle items-center">
@@ -101,7 +108,18 @@
     <TableBody>
       {#each selectedProjectData as proj}
         <TableBodyRow>
-          <TableBodyCell>{getProjectName(proj.projectKey)}</TableBodyCell>
+          <TableBodyCell
+            onclick={() => onNameClick(proj.projectKey)}
+            class="my-auto"
+          >
+            <div class="inline-block align-middle border-1 rounded-md">
+              {#if openRow === proj.projectKey}
+                <ChevronUpOutline />
+              {:else}
+                <ChevronDownOutline />
+              {/if}
+            </div>
+            {getProjectName(proj.projectKey)}</TableBodyCell>
 
           {@render row(proj.msTotal, "text-amber-700 border-r-1")}
           {@render row(proj.byDays[0])}
@@ -112,6 +130,15 @@
           {@render row(proj.byDays[5])}
           {@render row(proj.byDays[6])}
         </TableBodyRow>
+        {#if openRow === proj.projectKey}
+          {#each proj.timers as timer}
+            <TableBodyRow>
+              <TableBodyCell class="text-right">{timer.name}</TableBodyCell>
+
+              {@render row1(timer.start, timer.stop, "text-amber-700 border-r-1")}
+            </TableBodyRow>
+          {/each}
+        {/if}
       {/each}
     </TableBody>
   </Table>
@@ -123,4 +150,14 @@
       ms > 0 ? "font-bond text-black" : "font-light text-slate-400"
     } ${classes}`}
   >{msToHours(ms)}h</TableBodyCell>
+{/snippet}
+
+{#snippet row1(start: string, stop: string, classes?: string)}
+  <TableBodyCell class="text-right">
+    <Duration
+      duration={formatDuration(start, stop)}
+      type="hourFractions"
+      suffix="h"
+    ></Duration>
+  </TableBodyCell>
 {/snippet}

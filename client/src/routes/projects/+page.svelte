@@ -66,7 +66,7 @@
           size="xs"
         >
           {#if proj.archived}
-            Un-archive
+            Unarchive
           {:else}
             Archive
           {/if}

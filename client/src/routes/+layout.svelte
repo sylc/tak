@@ -37,6 +37,15 @@
     >
       <a href="/reports">Reports</a>
     </li>
+    <li
+      class={`px-2 rounded-md ${
+        isActive("/settings")
+          ? "bg-amber-400 text-white font-semibold"
+          : ""
+      }`}
+    >
+      <a href="/settings">Settings</a>
+    </li>
   </ul>
 
   {@render children()}
