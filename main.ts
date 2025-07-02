@@ -88,6 +88,16 @@ try {
     await startActiveTimer(ulid(), timer.name, timer.projectId);
   });
 
+  webui.bind("setActiveTimerProject", async (e: WebUI.Event) => {
+    const projectId = e.arg.string(0);
+    console.log("Active timer Assign project", projectId);
+
+    const activeTimer = (await kv.get<Timer>(["activeTimer"])).value;
+    await kv.atomic()
+      .set(["activeTimer"], { ...activeTimer, projectId })
+      .commit();
+  });
+
   // when the active timer is stopped, it is copied over to
   // the timers index
   async function stopActive() {
@@ -230,7 +240,7 @@ try {
   webui.bind("updateProjectName", async (e: WebUI.Event) => {
     const id = e.arg.string(0);
     const name = e.arg.string(1);
-    console.log("project newName", name);
+    console.log("project newName", id, name);
     const project = (await kv.get<Project>(["projects", id])).value!;
     await kv.set(["projects", id], { ...project, name });
   });
@@ -370,6 +380,7 @@ try {
   else {
     Deno.writeTextFileSync(
       "./.tak/logs/log.txt",
+      // deno-lint-ignore no-explicit-any
       `${(err as any).toString()}\n`,
       {
         append: true,

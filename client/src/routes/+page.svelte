@@ -125,6 +125,16 @@
     listOfTimers = JSON.parse(await webui.timers());
   };
 
+  const onActiveTimerProjectChange = async (
+    projectId: string | "NO_PROJECT",
+  ) => {
+    status.projectId = projectId;
+    if (status.start) {
+      // if not timer has started, save to db.
+      await webui.setActiveTimerProject(projectId);
+    }
+  };
+
   const onProjectChange = async (
     projectId: string | "NO_PROJECT",
     timerId: string,
@@ -186,35 +196,46 @@
     </Button>
   </div>
 
-  <div class="flex p-2 justify-between items-center">
-    <div class="bg-yellow-100 flex gap-2">
-      {#if status.start}
-        <div>
-          {format(new Date(status.start), "dd/MM")}
-        </div>
-        <Timepicker
-          value={format(new Date(status.start), "HH:mm")}
-          onselect={onActiveTimerTimeChange}
-          size="sm"
+  <div class="flex px-2 pb-2 justify-between items-center">
+    <div class="flex flex-col gap-1">
+      <div>
+        {#if status.start}
+          <Timepicker
+            value={format(new Date(status.start), "HH:mm")}
+            onselect={onActiveTimerTimeChange}
+            size="sm"
+            divClass="scale-80 relative left-0 origin-top-left"
+          />
+        {:else}
+          <Timepicker
+            value={"-:-"}
+            size="sm"
+            divClass="scale-80 relative left-0 origin-top-left"
+          />
+        {/if}
+      </div>
+      <div>
+        <DropdownWithSearch
+          items={projects.projects.filter((p) => !p.archived)}
+          selected={projectsByKey()[status.projectId || ""]
+            ?.name || ""}
+          onSelection={(newId) => onActiveTimerProjectChange(newId)}
         />
-      {/if}
+      </div>
     </div>
     <div
-      class="flex gap-x-2 text-slate-700"
+      class="flex flex-col gap-x-2 text-slate-700"
       onclick={() => showInvert = !showInvert}
     >
-      <span class="text-xs text-slate-500">{
-        showInvert ? "Remaining" : ""
-      }</span>
+      <span
+        class="text-xs text-slate-500 hover:font-semibold hover:cursor-pointer"
+      >{showInvert ? "Remaining" : "Sum"}&nbsp;&#8596;</span>
       <div class="flex">
         Today:&nbsp;<Duration
           duration={todayTotal}
           type="hourFractions"
           base={showInvert ? settings.hoursPerDay : undefined}
         />h
-      </div>
-      <div class="text-xs" style="line-height: 2; color: gray">
-        &#x1f534;&#xfe0e;
       </div>
       <div class="flex">
         This Week:&nbsp;<Duration
@@ -227,7 +248,7 @@
   </div>
   <div class="grow-1 overflow-auto">
     <hr />
-    <div>
+    <div class="pt-2">
       <Toggle bind:checked={onlyNoProject}>Only tasks with No Project</Toggle>
     </div>
     {#each tasksByDay as tDay}
@@ -240,9 +261,11 @@
         </div>
         <div class="flex flex-col gap-y-1">
           {#each tDay.tasks as taskForDay}
-            {#if (onlyNoProject && (!taskForDay.projectId ||
+            {#if           (onlyNoProject && (!taskForDay.projectId ||
             taskForDay.projectId === "NO_PROJECT")) || !onlyNoProject}
-              <div class="flex-col gap-x-2 justify-between border-t-1 border-slate-300 py-1">
+              <div
+                class="flex-col gap-x-2 justify-between border-t-1 border-slate-300 py-1"
+              >
                 <!-- Row 1 -->
                 <div class="flex justify-between">
                   <div class="flex grow-1 justify-between">
@@ -250,7 +273,7 @@
                       <EditableDiv
                         text={taskForDay.name}
                         onSubmit={(newValue) =>
-                        updateTimerName(taskForDay.id, newValue)}
+                          updateTimerName(taskForDay.id, newValue)}
                         withPencil="hover"
                       />
                     </div>
@@ -260,7 +283,7 @@
                         start={taskForDay.start}
                         stop={taskForDay.stop}
                         onSubmit={(start, stop) =>
-                        onEditTimeRange(taskForDay.id, start, stop)}
+                          onEditTimeRange(taskForDay.id, start, stop)}
                       />
                     {/key}
                   </div>
@@ -278,25 +301,17 @@
                 <div class="flex justify-between">
                   <div class="min-w-46 flex align-middle items-baseline">
                     <!-- <FolderOutline /> -->
-                    <DropdownWithSearch
-                      items={projects.projects.filter((p) => !p.archived)}
-                      selected={projectsByKey()[taskForDay.projectId || ""]
-                      ?.name || ""}
-                      onSelection={(newId) =>
-                      onProjectChange(newId, taskForDay.id)}
-                    />
-                    <!-- <Select
-                    size="sm"
-                    class="grow-1 border-0"
-                    items={projects.projects.filter((p) => !p.archived)
-                    .map((p) => ({
-                      value: p.id,
-                      name: p.name,
-                    }))}
-                    value={taskForDay.projectId || ""}
-                    onchange={(e) => onProjectChange(e, taskForDay.id)}
-                    placeholder="Project"
-                  /> -->
+                    <div class="my-auto">
+                      <DropdownWithSearch
+                        items={projects.projects.filter((p) =>
+                          !p.archived
+                        )}
+                        selected={projectsByKey()[taskForDay.projectId || ""]
+                          ?.name || ""}
+                        onSelection={(newId) =>
+                          onProjectChange(newId, taskForDay.id)}
+                      />
+                    </div>
                   </div>
                   <div>
                     <div class="text-xs">

@@ -19,9 +19,10 @@
   );
 </script>
 
-<Button size="xs" outline color="light">{
-    selected || "Project"
-  }<ChevronDownOutline class="ms-2 h-6 w-6 dark:text-white" /></Button>
+<Button size="xs" outline color="light" class="py-0.15 w-full">
+  {selected || "Project"}
+  <ChevronDownOutline class="ms-2 h-6 w-6 dark:text-white" />
+</Button>
 <Dropdown bind:isOpen>
   <div class="p-3">
     <Search size="md" bind:value={searchTerm} autofocus />
