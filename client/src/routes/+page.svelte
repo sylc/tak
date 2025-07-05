@@ -18,6 +18,7 @@
   import { projects, projectsByKey, settings } from "./states.svelte";
   import EditableDuration from "./EditableDuration.svelte";
   import DropdownWithSearch from "$lib/DropdownWithSearch.svelte";
+  import TimerDropdownMenuIcon from "$lib/TimerDropdownMenuIcon.svelte";
 
   let status = $state<Partial<Omit<Timer, "id">>>({
     name: "",
@@ -225,11 +226,13 @@
     </div>
     <div
       class="flex flex-col gap-x-2 text-slate-700"
-      onclick={() => showInvert = !showInvert}
     >
-      <span
-        class="text-xs text-slate-500 hover:font-semibold hover:cursor-pointer"
-      >{showInvert ? "Remaining" : "Sum"}&nbsp;&#8596;</span>
+      <Toggle
+        checked={showInvert}
+        onclick={() => showInvert = !showInvert}
+        size="small"
+        class="min-w-32"
+      >Remaining</Toggle>
       <div class="flex">
         Today:&nbsp;<Duration
           duration={todayTotal}
@@ -248,8 +251,9 @@
   </div>
   <div class="grow-1 overflow-auto">
     <hr />
-    <div class="pt-2">
-      <Toggle bind:checked={onlyNoProject}>Only tasks with No Project</Toggle>
+    <div class="pt-2 px-2">
+      <Toggle bind:checked={onlyNoProject} size="small"
+      >Only tasks with No Project</Toggle>
     </div>
     {#each tasksByDay as tDay}
       <div class="bg-white my-2 px-2">
@@ -287,19 +291,24 @@
                       />
                     {/key}
                   </div>
-                  <div>
+                  <div class="flex gap-1 align-baseline">
                     <Button
-                      onclick={() => onDeleteTimer(taskForDay.id)}
-                      size="xs"
-                      class="flex-end"
+                      onclick={() => onRestart(taskForDay.id)}
+                      class="hover:bg-green-700 p-1 rounded-md border border-gray-500 bg-gray-400"
+                      pill={true}
+                      size="sm"
                     >
-                      <TrashBinOutline size="xs" />
+                      <PlayOutline size="sm" />
                     </Button>
+                    <TimerDropdownMenuIcon
+                      onDeleteTimer={() => onDeleteTimer(taskForDay.id)}
+                    >
+                    </TimerDropdownMenuIcon>
                   </div>
                 </div>
                 <!-- Row 2 -->
-                <div class="flex justify-between">
-                  <div class="min-w-46 flex align-middle items-baseline">
+                <div class="flex justify-between align-middle items-baseline">
+                  <div class="min-w-46 flex">
                     <!-- <FolderOutline /> -->
                     <div class="my-auto">
                       <DropdownWithSearch
@@ -318,12 +327,6 @@
                       {formatDay(taskForDay.start)}
                       - {formatDay(taskForDay.stop)}
                     </div>
-                    <button
-                      onclick={() => onRestart(taskForDay.id)}
-                      class="hover:bg-green-300 px-2 rounded-md border border-gray-500"
-                    >
-                      re-start
-                    </button>
                   </div>
                 </div>
               </div>
