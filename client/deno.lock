@@ -14,6 +14,7 @@
     "npm:svelte@^5.34.3": "5.34.3_acorn@8.15.0",
     "npm:tailwindcss@^4.1.10": "4.1.10",
     "npm:typescript@5": "5.8.3",
+    "npm:vite-plugin-devtools-json@1": "1.0.0_vite@6.3.5__picomatch@4.0.2",
     "npm:vite@^6.2.6": "6.3.5_picomatch@4.0.2"
   },
   "npm": {
@@ -1104,6 +1105,17 @@
       "integrity": "sha512-p1diW6TqL9L07nNxvRMM7hMMw4c5XOo/1ibL4aAIGmSAt9slTE1Xgw5KWuof2uTOvCg9BY7ZRi+GaF+7sfgPeQ==",
       "bin": true
     },
+    "uuid@11.1.0": {
+      "integrity": "sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==",
+      "bin": true
+    },
+    "vite-plugin-devtools-json@1.0.0_vite@6.3.5__picomatch@4.0.2": {
+      "integrity": "sha512-MobvwqX76Vqt/O4AbnNMNWoXWGrKUqZbphCUle/J2KXH82yKQiunOeKnz/nqEPosPsoWWPP9FtNuPBSYpiiwkw==",
+      "dependencies": [
+        "uuid",
+        "vite"
+      ]
+    },
     "vite@6.3.5_picomatch@4.0.2": {
       "integrity": "sha512-cZn6NDFE7wdTpINgs++ZJ4N49W2vRp8LCKrn3Ob1kYNtOo21vfDoaV5GzBfLU4MovSAB8uNRm4jgzVQZ+mBzPQ==",
       "dependencies": [
@@ -1151,6 +1163,7 @@
         "npm:svelte@^5.34.3",
         "npm:tailwindcss@^4.1.10",
         "npm:typescript@5",
+        "npm:vite-plugin-devtools-json@1",
         "npm:vite@^6.2.6"
       ]
     }

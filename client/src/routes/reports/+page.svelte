@@ -32,6 +32,31 @@
     return dataFortheWeek.reduce((acc, curr) => acc += curr.msTotal, 0);
   });
 
+  let dailyTotals = $derived.by(() => {
+    const dataFortheWeek = weeklyReport[days.weekKey as string] || [];
+
+    const dailyTotal = {
+      day1: 0,
+      day2: 0,
+      day3: 0,
+      day4: 0,
+      day5: 0,
+      day6: 0,
+      day7: 0,
+    };
+
+    return dataFortheWeek.reduce((acc, curr) => {
+      acc.day1 = curr.byDays[0];
+      acc.day2 = curr.byDays[1];
+      acc.day3 = curr.byDays[2];
+      acc.day4 = curr.byDays[3];
+      acc.day5 = curr.byDays[4];
+      acc.day6 = curr.byDays[5];
+      acc.day7 = curr.byDays[6];
+      return acc;
+    }, dailyTotal);
+  });
+
   let selectedProjectData = $derived.by(() => {
     return (weeklyReport[days.weekKey as string] || []);
   });
@@ -97,13 +122,23 @@
     <TableHead>
       <TableHeadCell>Project</TableHeadCell>
       <TableHeadCell class="text-amber-700 border-r-1">total</TableHeadCell>
-      <TableHeadCell>{days.day1}</TableHeadCell>
-      <TableHeadCell>{days.day2}</TableHeadCell>
-      <TableHeadCell>{days.day3}</TableHeadCell>
-      <TableHeadCell>{days.day4}</TableHeadCell>
-      <TableHeadCell>{days.day5}</TableHeadCell>
-      <TableHeadCell>{days.day6}</TableHeadCell>
-      <TableHeadCell>{days.day7}</TableHeadCell>
+      <TableHeadCell>
+        {days.day1} <br>
+        {@render dailyHours(dailyTotals.day1)}
+      </TableHeadCell>
+      <TableHeadCell>{days.day2} <br>
+        {@render dailyHours(dailyTotals.day2)}
+      </TableHeadCell>
+      <TableHeadCell>{days.day3} <br>
+        {@render dailyHours(dailyTotals.day3)}</TableHeadCell>
+      <TableHeadCell>{days.day4} <br>
+        {@render dailyHours(dailyTotals.day4)}</TableHeadCell>
+      <TableHeadCell>{days.day5} <br>
+        {@render dailyHours(dailyTotals.day5)}</TableHeadCell>
+      <TableHeadCell>{days.day6} <br>
+        {@render dailyHours(dailyTotals.day6)}</TableHeadCell>
+      <TableHeadCell>{days.day7} <br>
+        {@render dailyHours(dailyTotals.day7)}</TableHeadCell>
     </TableHead>
     <TableBody>
       {#each selectedProjectData as proj}
@@ -135,7 +170,7 @@
             <TableBodyRow>
               <TableBodyCell class="text-right">{timer.name}</TableBodyCell>
 
-              {@render row1(timer.start, timer.stop, "text-amber-700 border-r-1")}
+              {@render           row1(timer.start, timer.stop, "text-amber-700 border-r-1")}
             </TableBodyRow>
           {/each}
         {/if}
@@ -149,7 +184,8 @@
     class={`${
       ms > 0 ? "font-bond text-black" : "font-light text-slate-400"
     } ${classes}`}
-  >{msToHours(ms)}h</TableBodyCell>
+  >{msToHours(ms)}h
+  </TableBodyCell>
 {/snippet}
 
 {#snippet row1(start: string, stop: string, classes?: string)}
@@ -160,4 +196,13 @@
       suffix="h"
     ></Duration>
   </TableBodyCell>
+{/snippet}
+
+{#snippet dailyHours(ms: number, classes?: string)}
+  <span
+    class={`lowercase ${
+      ms > 0 ? "font-bond text-black" : "font-light text-slate-400"
+    } ${classes}`}
+  >{msToHours(ms)}h
+  </span>
 {/snippet}
