@@ -33,7 +33,7 @@
   });
 
   let dailyTotals = $derived.by(() => {
-    const dataFortheWeek = weeklyReport[days.weekKey as string] || [];
+    const dataForWeek = weeklyReport[days.weekKey as string] || [];
 
     const dailyTotal = {
       day1: 0,
@@ -45,14 +45,14 @@
       day7: 0,
     };
 
-    return dataFortheWeek.reduce((acc, curr) => {
-      acc.day1 = curr.byDays[0];
-      acc.day2 = curr.byDays[1];
-      acc.day3 = curr.byDays[2];
-      acc.day4 = curr.byDays[3];
-      acc.day5 = curr.byDays[4];
-      acc.day6 = curr.byDays[5];
-      acc.day7 = curr.byDays[6];
+    return dataForWeek.reduce((acc, curr) => {
+      acc.day1 += curr.byDays[0];
+      acc.day2 += curr.byDays[1];
+      acc.day3 += curr.byDays[2];
+      acc.day4 += curr.byDays[3];
+      acc.day5 += curr.byDays[4];
+      acc.day6 += curr.byDays[5];
+      acc.day7 += curr.byDays[6];
       return acc;
     }, dailyTotal);
   });
