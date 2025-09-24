@@ -1,16 +1,16 @@
 // deno-lint-ignore-file no-inner-declarations
 
-import { WebUI } from "jsr:@webui/deno-webui";
-import { ulid } from "jsr:@std/ulid";
-import * as media_types from "jsr:@std/media-types";
-import { extname } from "jsr:@std/path@^1.1.0/extname";
-import { addDays, endOfWeek, getDay, getWeek, getYear } from "npm:date-fns";
+import { WebUI } from "webui";
+import { ulid } from "ulid";
+import * as media_types from "media-types";
+import { extname } from "extname";
+import { addDays, endOfWeek, getDay, getWeek, getYear } from "date-fns";
 import type {
   Project,
   Timer,
   WeeklyByProjectReport,
 } from "./client/src/types.ts";
-// import { upgrade } from "./upgrade.ts";
+
 import { getPort, isDev, log, setVersion, sliceIntoBatches } from "./utils.ts";
 import version from "./version.txt" with { type: "text" };
 setVersion(version);

@@ -12,5 +12,13 @@
       "dependencies": ["dev-client", "dev-server"]
     }
   },
-  "unstable": ["fmt-component", "raw-imports", "kv"]
+  "unstable": ["fmt-component", "raw-imports", "kv"],
+  "imports": {
+    "@/": "./src/",
+    "webui": "jsr:@webui/deno-webui",
+    "ulid": "jsr:@std/ulid",
+    "media-types": "jsr:@std/media-types",
+    "extname": "jsr:@std/path@^1.1.0/extname",
+    "date-fns": "npm:date-fns"
+  }
 }
