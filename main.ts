@@ -4,7 +4,6 @@ import { WebUI } from "jsr:@webui/deno-webui";
 import { ulid } from "jsr:@std/ulid";
 import * as media_types from "jsr:@std/media-types";
 import { extname } from "jsr:@std/path@^1.1.0/extname";
-
 import { addDays, endOfWeek, getDay, getWeek, getYear } from "npm:date-fns";
 import type {
   Project,
@@ -12,14 +11,14 @@ import type {
   WeeklyByProjectReport,
 } from "./client/src/types.ts";
 // import { upgrade } from "./upgrade.ts";
-import { sliceIntoBatches } from "./utils.ts";
+import { getPort, isDev, log, setVersion, sliceIntoBatches } from "./utils.ts";
+import version from "./version.txt" with { type: "text" };
+setVersion(version);
 
 export const index_timers_by_start_date = "timers_by_start_date";
 export const compositeKeyStart = (timer: { start: string; id: string }) => {
   return `${timer.start}__${timer.id}`;
 };
-
-const isDev = Deno.env.get("DEV") === "true";
 
 try {
   const webui = new WebUI();
@@ -323,8 +322,12 @@ try {
   }
 
   //////
+  webui.bind("appMeta", () => {
+    return JSON.stringify({ version });
+  });
 
-  webui.setPort(8081);
+  const port = await getPort();
+  webui.setPort(port);
 
   if (isDev) {
     //
@@ -343,11 +346,18 @@ try {
       const path = Deno.build.standalone
         ? import.meta.dirname + "/client/build" + filename
         : "./client/build" + filename;
-      const contentStr = await Deno.readTextFile(path);
+      let contentStr = await Deno.readTextFile(path);
+      if (filename === "/index.html") {
+        contentStr = contentStr.replace(
+          "http://localhost:8082/",
+          `http://localhost:${port}/`,
+        );
+      }
       const content = new TextEncoder().encode(contentStr);
       const header = [
         "HTTP/1.1 200 OK",
         `Content-Type: ${contentType}`,
+        "Cache-Control: no-cache, no-store",
         "",
         "",
       ].join("\r\n");
@@ -372,19 +382,14 @@ try {
     const index = await Deno.readTextFile(
       import.meta.dirname + "/client/build/index.html",
     );
-    await webui.show(index);
+    await webui.show(
+      index.replaceAll("http://localhost:8082/", `http://localhost:${port}/`),
+    );
   }
   await WebUI.wait();
 } catch (err) {
   if (isDev) throw err;
   else {
-    Deno.writeTextFileSync(
-      "./.tak/logs/log.txt",
-      // deno-lint-ignore no-explicit-any
-      `${(err as any).toString()}\n`,
-      {
-        append: true,
-      },
-    );
+    log(err);
   }
 }
