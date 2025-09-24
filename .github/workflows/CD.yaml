@@ -19,7 +19,8 @@ jobs:
         uses: actions/checkout@v4
       - name: Build
         run: |
-          echo ${GITHUB_REF#refs/tags/} > version.txt
+          echo ${{ github.ref_name }}
+          echo ${{ github.ref_name }} > version.txt
           deno task install && deno task dist
       - name: Release
         uses: softprops/action-gh-release@v2
