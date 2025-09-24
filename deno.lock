@@ -55,5 +55,14 @@
       "integrity": "sha512-8HIuAuQWk/4xyFrEkNhkR7WSQ63qYs9WnF7rVvALIIQjnY25VDrPx6eWa7yR5eFL4NXXFFN6+jPJdbW50xSCvg==",
       "bin": true
     }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/media-types@*",
+      "jsr:@std/path@^1.1.0",
+      "jsr:@std/ulid@*",
+      "jsr:@webui/deno-webui@*",
+      "npm:date-fns@*"
+    ]
   }
 }

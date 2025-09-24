@@ -1,15 +1,24 @@
 {
   "tasks": {
     // Note that the exe do not open when called with git bash
-    "dist": "cd client && deno task build && cd .. && deno compile -A --unstable-kv --no-terminal -o tak --icon ./favicon_round_small.ico --include client/build main.ts",
     "install": "deno install && cd client && deno install --allow-scripts=npm:@tailwindcss/oxide",
     "dev-client": "cd client && deno task dev",
+    "dist": "cd client && deno task build && cd .. && deno task compile",
+    "compile": "deno compile -A --unstable-kv --unstable-raw-imports --no-terminal -o tak --icon ./favicon_round_small.ico --include client/build main.ts",
     // we use sleep to make give time to the client to start.
     // sometimes, like with new package version, it take time and the server closes.
-    "dev-server": "sleep 4 && DEV=true deno run -A --unstable-kv main.ts",
+    "dev-server": "sleep 4 && DEV=true deno run -A main.ts",
     "dev": {
       "dependencies": ["dev-client", "dev-server"]
     }
   },
-  "unstable": ["fmt-component"]
+  "unstable": ["fmt-component", "raw-imports", "kv"],
+  "imports": {
+    "@/": "./src/",
+    "webui": "jsr:@webui/deno-webui",
+    "ulid": "jsr:@std/ulid",
+    "media-types": "jsr:@std/media-types",
+    "extname": "jsr:@std/path@^1.1.0/extname",
+    "date-fns": "npm:date-fns"
+  }
 }
