@@ -12,13 +12,9 @@ import type {
 } from "./client/src/types.ts";
 
 import { getPort, isDev, log, setVersion, sliceIntoBatches } from "./utils.ts";
+import { compositeKeyStart, index_timers_by_start_date } from "./lib/utils.ts";
 import version from "./version.txt" with { type: "text" };
 setVersion(version);
-
-export const index_timers_by_start_date = "timers_by_start_date";
-export const compositeKeyStart = (timer: { start: string; id: string }) => {
-  return `${timer.start}__${timer.id}`;
-};
 
 try {
   const webui = new WebUI();

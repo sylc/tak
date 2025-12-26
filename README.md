@@ -18,6 +18,7 @@ working on, assign them to a project and see weekly reports.
 ## To develop:
 
 - `deno task install`
+- `deno task seed` (optional - seed task for today and yesterday)
 - `deno task dev`
 
 ## Architecture
