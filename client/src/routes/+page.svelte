@@ -1,13 +1,8 @@
 <script lang="ts">
   import { Button, Input, Timepicker, Toggle } from "flowbite-svelte";
-  import {
-    FolderOutline,
-    PlayOutline,
-    StopOutline,
-    TrashBinOutline,
-  } from "flowbite-svelte-icons";
+  import { PlayOutline, StopOutline } from "flowbite-svelte-icons";
 
-  import { format, isThisWeek, isToday, parse, startOfDay } from "date-fns";
+  import { format, isThisWeek, isToday, parse } from "date-fns";
   import { ulid } from "@std/ulid";
   import TimerDisplay from "./TimerDisplay.svelte";
   import { onMount } from "svelte";
@@ -15,10 +10,11 @@
   import Duration from "./Duration.svelte";
   import EditableDiv from "./EditableDiv.svelte";
   import type { Timer } from "../types";
-  import { projects, projectsByKey, settings } from "./states.svelte";
+  import { settings } from "./states.svelte";
   import EditableDuration from "./EditableDuration.svelte";
   import DropdownWithSearch from "$lib/DropdownWithSearch.svelte";
   import TimerDropdownMenuIcon from "$lib/TimerDropdownMenuIcon.svelte";
+  import { projectsStore } from "./projectsStore.svelte";
 
   let status = $state<Partial<Omit<Timer, "id">>>({
     name: "",
@@ -46,7 +42,7 @@
       status = activeTask;
     }
     listOfTimers = JSON.parse(await webui.timers());
-    projects.projects = JSON.parse(await webui.projects());
+    projectsStore.loadProjects();
   });
 
   let tasksByDay = $derived.by(() => {
@@ -217,8 +213,8 @@
       </div>
       <div>
         <DropdownWithSearch
-          items={projects.projects.filter((p) => !p.archived)}
-          selected={projectsByKey()[status.projectId || ""]
+          items={projectsStore.projects.projects.filter((p) => !p.archived)}
+          selected={projectsStore.projectsByIds[status.projectId || ""]
             ?.name || ""}
           onSelection={(newId) => onActiveTimerProjectChange(newId)}
         />
@@ -312,10 +308,13 @@
                     <!-- <FolderOutline /> -->
                     <div class="my-auto">
                       <DropdownWithSearch
-                        items={projects.projects.filter((p) =>
-                          !p.archived
-                        )}
-                        selected={projectsByKey()[taskForDay.projectId || ""]
+                        items={projectsStore.projects.projects.filter((
+                          p,
+                        ) => !p.archived)}
+                        selected={projectsStore
+                          .projectsByIds[
+                            taskForDay.projectId || ""
+                          ]
                           ?.name || ""}
                         onSelection={(newId) =>
                           onProjectChange(newId, taskForDay.id)}

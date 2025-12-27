@@ -2,29 +2,21 @@
   import { Button, ButtonGroup, Input, Toggle } from "flowbite-svelte";
   import EditableDiv from "../EditableDiv.svelte";
   import { onMount } from "svelte";
-  import { projects } from "../states.svelte";
+  import { projectsStore } from "../ProjectsStore.svelte";
 
   let newProject = $state<string>("");
   let showArchived = $state(false);
 
   onMount(async () => {
-    projects.projects = JSON.parse(await webui.projects());
+    projectsStore.loadProjects();
   });
 
-  const onCreateProject = async () => {
-    await webui.createProject(newProject);
-    newProject = "";
-    projects.projects = JSON.parse(await webui.projects());
-  };
-
   const onEditProjectName = async (id: string, newValue: string) => {
-    await webui.updateProjectName(id, newValue);
-    projects.projects = JSON.parse(await webui.projects());
+    await projectsStore.updateProjectName(id, newValue);
   };
 
   const onArchive = async (id: string, newState: boolean) => {
-    await webui.archiveProject(id, newState);
-    projects.projects = JSON.parse(await webui.projects());
+    await projectsStore.archiveProject(id, newState);
   };
 </script>
 
@@ -35,7 +27,7 @@
       bind:value={newProject}
       onKeydown={(e) => {
         if (e.key === "Enter" && newProject !== "") {
-          onCreateProject();
+          projectsStore.createProject(newProject);
         }
       }}
       placeholder="Project name"
@@ -43,7 +35,7 @@
     <Button
       color="primary"
       disabled={newProject === ""}
-      onclick={onCreateProject}
+      onclick={() => projectsStore.createProject(newProject)}
     >Create</Button>
   </ButtonGroup>
   <div class="mt-2">
@@ -55,7 +47,7 @@
     >Include Archived Projects</Toggle>
   </div>
   <ul class="mt-2">
-    {#each projects.projects as proj}
+    {#each projectsStore.projects.projects as proj}
       {#if !proj.archived || showArchived}
         <li
           class={`p-2 border-b-1 border-slate-200 flex justify-between

@@ -10,7 +10,8 @@
   } from "flowbite-svelte";
   import { onMount } from "svelte";
   import type { WeeklyByProjectReport } from "../../types";
-  import { projectsByKey } from "../states.svelte";
+  import { projectsStore } from "../projectsStore.svelte";
+
   import { formatDuration, getWeekKey, msToHours } from "../utils";
   import {
     ArrowLeftOutline,
@@ -20,6 +21,7 @@
   } from "flowbite-svelte-icons";
   import { addDays } from "date-fns";
   import Duration from "../Duration.svelte";
+  import DropdownWithSearch from "$lib/DropdownWithSearch.svelte";
 
   let weeklyReport: Record<string, WeeklyByProjectReport[]> = $state({});
   let days = $state({
@@ -62,13 +64,26 @@
   });
 
   const getProjectName = (projectKey: string) => {
-    return projectsByKey()[projectKey]?.name || "No Project";
+    return projectsStore.projectsByIds[projectKey]?.name || "No Project";
   };
 
-  onMount(async () => {
+  const onProjectChange = async (
+    projectId: string | "NO_PROJECT",
+    timerId: string,
+  ) => {
+    await webui.setProject(timerId, projectId);
+    await reload();
+  };
+
+  const reload = async () => {
     weeklyReport = JSON.parse(
       await webui.getByWeeklyAndProjects(days.day1d.toISOString()),
     );
+  };
+
+  onMount(async () => {
+    await reload();
+    projectsStore.loadProjects();
   });
 
   const onPreviousWeek = async () => {
@@ -168,8 +183,27 @@
         {#if openRow === proj.projectKey}
           {#each proj.timers as timer}
             <TableBodyRow>
-              <TableBodyCell class="text-right">{timer.name}</TableBodyCell>
-
+              <TableBodyCell class="text-right pl-6 pr-2">
+                <div class="flex justify-between items-center w-full">
+                  <div class="">
+                    {timer.name}
+                  </div>
+                  <div class="">
+                    <DropdownWithSearch
+                      items={projectsStore.projects.projects.filter((p) =>
+                        !p.archived
+                      )}
+                      selected={projectsStore
+                        .projectsByIds[proj.projectKey || ""]
+                        ?.name || ""}
+                      onSelection={(newProjectId) =>
+                        onProjectChange(newProjectId, timer.id)}
+                      dense
+                    />
+                  </div>
+                </div>
+                <!-- </div> -->
+              </TableBodyCell>
               {@render           row1(timer.start, timer.stop, "text-amber-700 border-r-1")}
             </TableBodyRow>
           {/each}

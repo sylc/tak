@@ -242,8 +242,8 @@ try {
 
   webui.bind("archiveProject", async (e: WebUI.Event) => {
     const id = e.arg.string(0);
-    const forceState = e.arg.string(1);
-    console.log("archiving project", name, forceState);
+    const forceState = e.arg.boolean(1);
+    console.log("archiving project", `"${id}"`, forceState);
     const project = (await kv.get<Project>(["projects", id])).value!;
     await kv.set(["projects", id], {
       ...project,
