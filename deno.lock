@@ -1,50 +1,50 @@
 {
   "version": "5",
   "specifiers": {
-    "jsr:@std/fs@*": "0.229.3",
-    "jsr:@std/fs@0.229.3": "0.229.3",
-    "jsr:@std/media-types@*": "1.1.0",
-    "jsr:@std/path@1.0.0-rc.1": "1.0.0-rc.1",
-    "jsr:@std/path@1.0.8": "1.0.8",
-    "jsr:@std/path@^1.1.0": "1.1.0",
-    "jsr:@std/ulid@*": "1.0.0",
-    "jsr:@webui/deno-webui@*": "2.5.8",
-    "jsr:@zip-js/zip-js@2.7.60": "2.7.60",
-    "npm:date-fns@*": "4.1.0",
+    "jsr:@std/fs@^1.0.19": "1.0.21",
+    "jsr:@std/internal@^1.0.12": "1.0.12",
+    "jsr:@std/media-types@1.1.0": "1.1.0",
+    "jsr:@std/path@^1.1.2": "1.1.4",
+    "jsr:@std/path@^1.1.4": "1.1.4",
+    "jsr:@std/ulid@1.0.0": "1.0.0",
+    "jsr:@webui/deno-webui@2.5.13": "2.5.13",
+    "jsr:@zip-js/zip-js@^2.8.7": "2.8.8",
+    "npm:date-fns@4.1.0": "4.1.0",
     "npm:sv@*": "0.8.7"
   },
   "jsr": {
-    "@std/fs@0.229.3": {
-      "integrity": "783bca21f24da92e04c3893c9e79653227ab016c48e96b3078377ebd5222e6eb",
+    "@std/fs@1.0.21": {
+      "integrity": "d720fe1056d78d43065a4d6e0eeb2b19f34adb8a0bc7caf3a4dbf1d4178252cd",
       "dependencies": [
-        "jsr:@std/path@1.0.0-rc.1"
+        "jsr:@std/internal",
+        "jsr:@std/path@^1.1.4"
       ]
+    },
+    "@std/internal@1.0.12": {
+      "integrity": "972a634fd5bc34b242024402972cd5143eac68d8dffaca5eaa4dba30ce17b027"
     },
     "@std/media-types@1.1.0": {
       "integrity": "c9d093f0c05c3512932b330e3cc1fe1d627b301db33a4c2c2185c02471d6eaa4"
     },
-    "@std/path@1.0.0-rc.1": {
-      "integrity": "b8c00ae2f19106a6bb7cbf1ab9be52aa70de1605daeb2dbdc4f87a7cbaf10ff6"
-    },
-    "@std/path@1.0.8": {
-      "integrity": "548fa456bb6a04d3c1a1e7477986b6cffbce95102d0bb447c67c4ee70e0364be"
-    },
-    "@std/path@1.1.0": {
-      "integrity": "ddc94f8e3c275627281cbc23341df6b8bcc874d70374f75fec2533521e3d6886"
+    "@std/path@1.1.4": {
+      "integrity": "1d2d43f39efb1b42f0b1882a25486647cb851481862dc7313390b2bb044314b5",
+      "dependencies": [
+        "jsr:@std/internal"
+      ]
     },
     "@std/ulid@1.0.0": {
       "integrity": "d41c3d27a907714413649fee864b7cde8d42ee68437d22b79d5de4f81d808780"
     },
-    "@webui/deno-webui@2.5.8": {
-      "integrity": "c3316d6d103a66f29a672ed7e3773cc73c3e5045173050f5f7726e9350e87d45",
+    "@webui/deno-webui@2.5.13": {
+      "integrity": "6f03345e19b943177766a30ed728a0e16c228757b5469bceee6092a7e18a25f9",
       "dependencies": [
-        "jsr:@std/fs@0.229.3",
-        "jsr:@std/path@1.0.8",
+        "jsr:@std/fs",
+        "jsr:@std/path@^1.1.2",
         "jsr:@zip-js/zip-js"
       ]
     },
-    "@zip-js/zip-js@2.7.60": {
-      "integrity": "6bb6cf0d02b64ca9acba8c7bc072293609ec3bad584db2b5cf3bb089e031ea0e"
+    "@zip-js/zip-js@2.8.8": {
+      "integrity": "d02be7ef8707977e714cd24e045882f0b396dbcecfcabd7b591c5cdba40e47b7"
     }
   },
   "npm": {
@@ -58,11 +58,11 @@
   },
   "workspace": {
     "dependencies": [
-      "jsr:@std/media-types@*",
-      "jsr:@std/path@^1.1.0",
-      "jsr:@std/ulid@*",
-      "jsr:@webui/deno-webui@*",
-      "npm:date-fns@*"
+      "jsr:@std/media-types@1.1.0",
+      "jsr:@std/path@^1.1.4",
+      "jsr:@std/ulid@1.0.0",
+      "jsr:@webui/deno-webui@2.5.13",
+      "npm:date-fns@4.1.0"
     ]
   }
 }

@@ -16,10 +16,10 @@
   "unstable": ["fmt-component", "raw-imports", "kv"],
   "imports": {
     "@/": "./src/",
-    "webui": "jsr:@webui/deno-webui",
-    "ulid": "jsr:@std/ulid",
-    "media-types": "jsr:@std/media-types",
-    "extname": "jsr:@std/path@^1.1.0/extname",
-    "date-fns": "npm:date-fns"
+    "webui": "jsr:@webui/deno-webui@2.5.13",
+    "ulid": "jsr:@std/ulid@1.0.0",
+    "media-types": "jsr:@std/media-types@1.1.0",
+    "extname": "jsr:@std/path@^1.1.4/extname",
+    "date-fns": "npm:date-fns@4.1.0"
   }
 }
