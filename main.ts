@@ -350,7 +350,7 @@ try {
             ? projectById[timer.value.projectId]?.name
             : "",
         };
-      }) as any,
+      }),
       {
         columns: ["id", "name", "start", "stop", "project"],
       },

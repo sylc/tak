@@ -12,8 +12,8 @@ working on, assign them to a project and see weekly reports.
 - Run the executable
 
 > [!NOTE]
-> The Data is saved locally in a `.tak` folder where the executable. If you move
-> the excutable, also move the folder or you will loose your data.
+> The Data is saved locally in a `.tak` folder where the executable is located.
+> If you move the excutable, also move the folder or you will loose your data.
 
 ## To develop:
 

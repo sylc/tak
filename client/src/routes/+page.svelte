@@ -16,7 +16,7 @@
   import TimerDropdownMenuIcon from "$lib/TimerDropdownMenuIcon.svelte";
   import { projectsStore } from "./projectsStore.svelte";
 
-  let status = $state<Partial<Omit<Timer, "id">>>({
+  let status = $state<Omit<Timer, "id">>({
     name: "",
     start: "",
     stop: "",
@@ -25,7 +25,6 @@
   let onlyNoProject = $state(false);
 
   const onActiveTimerTimeChange = async (data?: { time: string }) => {
-    console.log(data);
     if (data && status.start) {
       const start = (parse(data.time, "HH:mm", new Date(status.start)))
         .toISOString();
