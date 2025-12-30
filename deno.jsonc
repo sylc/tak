@@ -20,6 +20,8 @@
     "ulid": "jsr:@std/ulid@1.0.0",
     "media-types": "jsr:@std/media-types@1.1.0",
     "extname": "jsr:@std/path@^1.1.4/extname",
+    "stringify": "jsr:@std/csv@^1.0.6/stringify",
+    "resolve": "jsr:@std/path@^1.1.4/resolve",
     "date-fns": "npm:date-fns@4.1.0"
   }
 }

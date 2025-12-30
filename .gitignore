@@ -1,5 +1,6 @@
 stderr
 *.exe
 
+export_*
 .tak
 z_*

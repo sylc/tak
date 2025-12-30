@@ -136,7 +136,7 @@
   <Table>
     <TableHead>
       <TableHeadCell>Project</TableHeadCell>
-      <TableHeadCell class="text-amber-700 border-r-1">total</TableHeadCell>
+      <TableHeadCell class="text-amber-700 border-r">total</TableHeadCell>
       <TableHeadCell>
         {days.day1} <br>
         {@render dailyHours(dailyTotals.day1)}
@@ -162,7 +162,7 @@
             onclick={() => onNameClick(proj.projectKey)}
             class="my-auto"
           >
-            <div class="inline-block align-middle border-1 rounded-md">
+            <div class="inline-block align-middle border rounded-md">
               {#if openRow === proj.projectKey}
                 <ChevronUpOutline />
               {:else}
@@ -171,7 +171,7 @@
             </div>
             {getProjectName(proj.projectKey)}</TableBodyCell>
 
-          {@render row(proj.msTotal, "text-amber-700 border-r-1")}
+          {@render row(proj.msTotal, "text-amber-700 border-r")}
           {@render row(proj.byDays[0])}
           {@render row(proj.byDays[1])}
           {@render row(proj.byDays[2])}

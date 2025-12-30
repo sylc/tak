@@ -1,6 +1,7 @@
 {
   "version": "5",
   "specifiers": {
+    "jsr:@std/csv@^1.0.6": "1.0.6",
     "jsr:@std/fs@^1.0.19": "1.0.21",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/media-types@1.1.0": "1.1.0",
@@ -13,6 +14,9 @@
     "npm:sv@*": "0.8.7"
   },
   "jsr": {
+    "@std/csv@1.0.6": {
+      "integrity": "52ef0e62799a0028d278fa04762f17f9bd263fad9a8e7f98c14fbd371d62d9fd"
+    },
     "@std/fs@1.0.21": {
       "integrity": "d720fe1056d78d43065a4d6e0eeb2b19f34adb8a0bc7caf3a4dbf1d4178252cd",
       "dependencies": [
@@ -58,6 +62,7 @@
   },
   "workspace": {
     "dependencies": [
+      "jsr:@std/csv@^1.0.6",
       "jsr:@std/media-types@1.1.0",
       "jsr:@std/path@^1.1.4",
       "jsr:@std/ulid@1.0.0",

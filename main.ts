@@ -4,16 +4,26 @@ import { WebUI } from "webui";
 import { ulid } from "ulid";
 import * as media_types from "media-types";
 import { extname } from "extname";
-import { addDays, endOfWeek, getDay, getWeek, getYear } from "date-fns";
+import { stringify } from "stringify";
+import {
+  addDays,
+  endOfWeek,
+  formatDate,
+  getDay,
+  getWeek,
+  getYear,
+} from "date-fns";
 import type {
   Project,
   Timer,
   WeeklyByProjectReport,
 } from "./client/src/types.ts";
 
-import { getPort, isDev, log, setVersion, sliceIntoBatches } from "./utils.ts";
+import { getPort, isDev, log, setVersion } from "./utils.ts";
 import { compositeKeyStart, index_timers_by_start_date } from "./lib/utils.ts";
 import version from "./version.txt" with { type: "text" };
+import { resolve } from "resolve";
+import { getTimersValuesInBatches } from "./utils_db.ts";
 setVersion(version);
 
 try {
@@ -186,7 +196,7 @@ try {
       .commit();
   });
 
-  // limited to the last 500.
+  // limited to the last 5000.
   // todo this is not great. we should have an index by start time;
   async function timers(opts?: { startOfWeekDay: string }) {
     const start = [
@@ -207,21 +217,7 @@ try {
       kv.list<string>({ start, end }, { reverse: true }),
     );
 
-    const timersBatches = sliceIntoBatches(timerIds, 8);
-    let entries: Deno.KvEntryMaybe<Timer>[] = [];
-    for (const batch of timersBatches) {
-      entries = entries.concat(
-        await kv.getMany<Timer[]>(
-          batch.map((id) => ["timers", id.value]),
-        ),
-      );
-    }
-
-    const timers: Timer[] = [];
-    for (const entry of entries) {
-      entry.value && timers.push(entry.value);
-    }
-    return timers;
+    return await getTimersValuesInBatches(kv, timerIds);
   }
 
   /////////////////// Projects
@@ -316,6 +312,54 @@ try {
     }
     return res;
   }
+
+  webui.bind("exportCSV", async () => {
+    const exportFilePath = resolve(
+      Deno.cwd(),
+      `export_${formatDate(new Date(), "yyyy-MM-dd_HH-mm-ss")}.csv`,
+    );
+    // constructData
+    const timers = await Array.fromAsync(
+      kv.list<Timer>({ prefix: ["timers"] }),
+    );
+
+    // Populate Projects.
+
+    const entries = await Array.fromAsync(
+      kv.list<Project>({ prefix: ["projects"] }),
+    );
+    const projects: Project[] = [];
+    for (const entry of entries) {
+      if (entry.key.length > 2) continue; // keys like [projects, "abc", timers, "abe"] will be skipped.
+      projects.push(entry.value!);
+    }
+
+    // key project byId
+    const projectById: Record<string, Project> = {};
+    for (const project of projects) {
+      projectById[project.id] = project;
+    }
+
+    // set project in timers and format to csv
+    const csvData = stringify(
+      timers.map((timer) => {
+        timer.value;
+        return {
+          ...timer.value,
+          project: timer.value.projectId
+            ? projectById[timer.value.projectId]?.name
+            : "",
+        };
+      }) as any,
+      {
+        columns: ["id", "name", "start", "stop", "project"],
+      },
+    );
+
+    await Deno.writeTextFile(exportFilePath, csvData);
+
+    return JSON.stringify({ exportFilePath });
+  });
 
   //////
   webui.bind("appMeta", () => {
