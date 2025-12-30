@@ -2,10 +2,19 @@
   import { Button, ButtonGroup, Input, Toggle } from "flowbite-svelte";
   import EditableDiv from "../EditableDiv.svelte";
   import { onMount } from "svelte";
-  import { projectsStore } from "../ProjectsStore.svelte";
+  import { projectsStore } from "../projectsStore.svelte";
 
   let newProject = $state<string>("");
   let showArchived = $state(false);
+
+  let filteredProjects = $derived.by(() => {
+    return projectsStore.projects.projects.filter((proj) => {
+      if (newProject == "") return true;
+      if (proj.name.includes(newProject)) {
+        return true;
+      }
+    });
+  });
 
   onMount(async () => {
     projectsStore.loadProjects();
@@ -28,6 +37,7 @@
       onKeydown={(e) => {
         if (e.key === "Enter" && newProject !== "") {
           projectsStore.createProject(newProject);
+          newProject = "";
         }
       }}
       placeholder="Project name"
@@ -47,7 +57,7 @@
     >Include Archived Projects</Toggle>
   </div>
   <ul class="mt-2">
-    {#each projectsStore.projects.projects as proj}
+    {#each filteredProjects as proj}
       {#if !proj.archived || showArchived}
         <li
           class={`p-2 border-b-1 border-slate-200 flex justify-between
