@@ -15,7 +15,7 @@
   } = $props();
 
   let showInput = $state(false);
-  let newValue = $state(text);
+  let newValue = $derived(text);
 
   $effect(() => {
     newValue = text; // reset internal state when prop changes

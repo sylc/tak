@@ -17,8 +17,8 @@
     id: string;
   }
   let { id, start, stop, onSubmit }: Props = $props();
-  let startD = $state(new Date(start));
-  let stopD = $state(new Date(stop));
+  let startD = $derived(new Date(start));
+  let stopD = $derived(new Date(stop));
   let isOpen = $state(false);
 
   let selectedTimeRange = $state({
