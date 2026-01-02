@@ -17,23 +17,23 @@ class ProjectsStore {
   );
 
   async loadProjects() {
-    const res = await globalThis.webui.call("projects");
+    const res = await globalThis.webui.projects();
     console.log(res);
     this.projects.projects = JSON.parse(res);
   }
 
   async createProject(name: string) {
-    await globalThis.webui.call("createProject", name);
+    await globalThis.webui.createProject(name);
     await this.loadProjects();
   }
 
   async updateProjectName(id: string, name: string) {
-    await globalThis.webui.call("updateProjectName", id, name);
+    await globalThis.webui.updateProjectName(id, name);
     await this.loadProjects();
   }
 
   async archiveProject(id: string, forceState: boolean) {
-    await globalThis.webui.call("archiveProject", id, forceState);
+    await globalThis.webui.archiveProject(id, forceState);
     await this.loadProjects();
   }
 

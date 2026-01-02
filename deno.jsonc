@@ -11,7 +11,10 @@
     "dev": {
       "dependencies": ["dev-client", "dev-server"]
     },
-    "seed": "deno run --allow-read --allow-write ./seed.ts"
+    "seed": "deno run --allow-read --allow-write ./seed.ts",
+    "check:client": "cd client && deno task check",
+    "check": "deno check main.ts && deno task check:client",
+    "ci": "deno fmt --check && deno lint && deno check main.ts && deno task check:client"
   },
   "unstable": ["fmt-component", "raw-imports", "kv"],
   "imports": {
