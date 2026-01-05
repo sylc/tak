@@ -18,7 +18,6 @@ class ProjectsStore {
 
   async loadProjects() {
     const res = await globalThis.webui.projects();
-    console.log(res);
     this.projects.projects = JSON.parse(res);
   }
 

@@ -1,8 +1,15 @@
 <script lang="ts">
-  import { Button, ButtonGroup, Input, Toggle } from "flowbite-svelte";
+  import {
+    Button,
+    ButtonGroup,
+    Input,
+    InputAddon,
+    Toggle,
+  } from "flowbite-svelte";
   import EditableDiv from "../EditableDiv.svelte";
   import { onMount } from "svelte";
   import { projectsStore } from "../projectsStore.svelte";
+  import { SearchOutline } from "flowbite-svelte-icons";
 
   let newProject = $state<string>("");
   let showArchived = $state(false);
@@ -10,7 +17,11 @@
   let filteredProjects = $derived.by(() => {
     return projectsStore.projects.projects.filter((proj) => {
       if (newProject == "") return true;
-      if (proj.name.includes(newProject)) {
+      if (
+        proj.name.toLocaleLowerCase().includes(
+          newProject.toLocaleLowerCase(),
+        )
+      ) {
         return true;
       }
     });
@@ -31,6 +42,9 @@
 
 <div class="p-2">
   <ButtonGroup class="w-full">
+    <InputAddon>
+      <SearchOutline class="h-6 w-6 text-gray-500 dark:text-gray-400" />
+    </InputAddon>
     <Input
       size="md"
       bind:value={newProject}
@@ -41,11 +55,17 @@
         }
       }}
       placeholder="Project name"
-    />
+      class=""
+      clearable
+    >
+    </Input>
     <Button
       color="primary"
       disabled={newProject === ""}
-      onclick={() => projectsStore.createProject(newProject)}
+      onclick={() => {
+        projectsStore.createProject(newProject);
+        newProject = "";
+      }}
     >Create</Button>
   </ButtonGroup>
   <div class="mt-2">
@@ -60,7 +80,7 @@
     {#each filteredProjects as proj}
       {#if !proj.archived || showArchived}
         <li
-          class={`p-2 border-b-1 border-slate-200 flex justify-between
+          class={`p-2 border-b border-slate-200 flex justify-between
           ${proj.archived ? "opacity-50" : ""}`}
         >
           <EditableDiv
