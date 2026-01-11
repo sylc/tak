@@ -41,6 +41,16 @@
       bind:value={searchTerm}
       autofocus
       placeholder="Search projects"
+      onkeydown={(e) => {
+        if (
+          e.code === "Enter" && searchTerm?.length > 1 &&
+          filteredItems.length === 1
+        ) {
+          isOpen = false;
+          onSelection(filteredItems[0].id);
+          projectsStore.addToRecents(filteredItems[0].id);
+        }
+      }}
     />
   </div>
   <DropdownGroup class="h-64 overflow-y-auto text-left">
