@@ -1,6 +1,8 @@
 import type { Project } from "../types.ts";
 import { keyBy } from "../lib/utils.ts";
 
+const MAX_RECENT_PROJECTS_LENGTH = 2;
+
 class ProjectsStore {
   constructor() {
     this.loadProjects();
@@ -10,6 +12,7 @@ class ProjectsStore {
 
   projectsByIds = $derived(keyBy<Project>(this.projects.projects, "id"));
 
+  // the first one is the most recent one.
   recentsIds = $state<string[]>([]);
 
   recentsProjects = $derived(
@@ -37,12 +40,13 @@ class ProjectsStore {
   }
 
   addToRecents(id: string) {
-    // filter duplicate
-    this.recentsIds = this.recentsIds.filter((i) => i !== id);
-    this.recentsIds.push(id);
-    if (this.recentsIds.length > 2) {
-      this.recentsIds.shift();
+    const recentIds = [id];
+    for (const recentId of this.recentsIds) {
+      if (recentId != id && recentIds.length < MAX_RECENT_PROJECTS_LENGTH) {
+        recentIds.push(recentId);
+      }
     }
+    this.recentsIds = recentIds;
   }
 }
 
