@@ -85,14 +85,23 @@
     </li>
     {#each filteredItems as item}
       <li
-        class="rounded-sm p-2 hover:bg-gray-100 dark:hover:bg-gray-600"
+        class={`
+        rounded-sm p-2 hover:bg-gray-100 dark:hover:bg-gray-600 flex flex-row justify-between
+        ${filteredItems.length === 1 ? "bg-gray-100" : ""}`}
         onclick={() => {
           isOpen = false;
           onSelection(item.id);
           projectsStore.addToRecents(item.id);
         }}
       >
-        {item.name}
+        <div>
+          {item.name}
+        </div>
+        {#if filteredItems.length === 1}<div
+            class="text-slate-400 text-sm"
+          >
+            ↵ Enter
+          </div>{/if}
       </li>
     {/each}
   </DropdownGroup>
