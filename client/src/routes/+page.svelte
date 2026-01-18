@@ -2,7 +2,14 @@
   import { Button, Input, Timepicker, Toggle } from "flowbite-svelte";
   import { PlayOutline, StopOutline } from "flowbite-svelte-icons";
 
-  import { format, isThisWeek, isToday, parse } from "date-fns";
+  import {
+    format,
+    getDay,
+    hoursToMilliseconds,
+    isThisWeek,
+    isToday,
+    parse,
+  } from "date-fns";
   import { ulid } from "@std/ulid";
   import TimerDisplay from "./TimerDisplay.svelte";
   import { onMount } from "svelte";
@@ -77,9 +84,9 @@
     return 0;
   });
   const thisWeekTotal = $derived.by(() => {
-    const res: { total: number; byDay: Record<string, number> } = {
-      total: 0,
-      byDay: {},
+    const res: { totalMs: number; byDayMs: Record<string, number> } = {
+      totalMs: 0,
+      byDayMs: {},
     };
     for (const tDay of tasksByDay) {
       const dayTotal = tDay.tasks.reduce(
@@ -89,10 +96,18 @@
         0,
       );
       if (isThisWeek(new Date(tDay.day), { weekStartsOn: 1 })) {
-        res.total += dayTotal;
+        res.totalMs += dayTotal;
       }
-      res.byDay[tDay.day] = dayTotal;
+      res.byDayMs[tDay.day] = dayTotal;
     }
+    return res;
+  });
+
+  const weekTotalVsTarget = $derived.by(() => {
+    const dayOfWeek = getDay(new Date()) || 7; // 0 is sunday, but we want weeks to starts on Monday.
+    const targetAtEndOfDay = Math.min(dayOfWeek, 5) * // currently hardcoded to 5 days of work.
+      hoursToMilliseconds(settings.hoursPerDay);
+    const res = thisWeekTotal.totalMs - targetAtEndOfDay;
     return res;
   });
 
@@ -192,7 +207,7 @@
     </Button>
   </div>
 
-  <div class="flex px-2 pb-2 justify-between items-center">
+  <div class="flex px-2 pb-2 justify-between items-center text-sm">
     <div class="flex flex-col gap-1">
       <div>
         {#if status.start}
@@ -220,7 +235,7 @@
       </div>
     </div>
     <div
-      class="flex flex-col gap-x-2 text-slate-700"
+      class="flex flex-col gap-x-2 text-slate-700 min-w-32"
     >
       <Toggle
         checked={showInvert}
@@ -237,10 +252,19 @@
       </div>
       <div class="flex">
         This Week:&nbsp;<Duration
-          duration={thisWeekTotal.total}
+          duration={thisWeekTotal.totalMs}
           type="hourFractions"
           base={showInvert ? settings.hoursPerWeek : undefined}
         />h
+      </div>
+      <div class="flex">
+        Week Progress:&nbsp;
+        <Duration
+          duration={weekTotalVsTarget}
+          type="hourFractions"
+          withLeadingSign
+        />
+        h
       </div>
     </div>
   </div>
@@ -254,7 +278,7 @@
       <div class="bg-white my-2 px-2">
         <div class="flex font-semibold text-slate-700 text-lg">
           {format(new Date(tDay.day), "EEE dd-MMM")} -&nbsp;<Duration
-            duration={thisWeekTotal.byDay[tDay.day]}
+            duration={thisWeekTotal.byDayMs[tDay.day]}
             type="hourFractions"
           />h
         </div>
