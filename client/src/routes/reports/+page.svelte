@@ -181,7 +181,9 @@
           {@render row(proj.byDays[6])}
         </TableBodyRow>
         {#if openRow === proj.projectKey}
-          {#each proj.timers as timer}
+          {#each         proj.timers.toSorted((a, b) => a.name.localeCompare(b.name)) as
+            timer
+          }
             <TableBodyRow>
               <TableBodyCell class="text-right pl-6 pr-2">
                 <div class="flex justify-between items-center w-full">
