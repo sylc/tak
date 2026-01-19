@@ -49,6 +49,7 @@
           isOpen = false;
           onSelection(filteredItems[0].id);
           projectsStore.addToRecents(filteredItems[0].id);
+          searchTerm = "";
         }
       }}
     />
@@ -65,6 +66,7 @@
             isOpen = false;
             onSelection(proj.id);
             projectsStore.addToRecents(proj.id);
+            searchTerm = "";
           }}
         >
           {proj.name}
@@ -92,6 +94,7 @@
           isOpen = false;
           onSelection(item.id);
           projectsStore.addToRecents(item.id);
+          searchTerm = "";
         }}
       >
         <div>
