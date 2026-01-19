@@ -57,6 +57,7 @@
       placeholder="Project name"
       class=""
       clearable
+      autofocus
     >
     </Input>
     <Button
