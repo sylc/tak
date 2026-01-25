@@ -35,4 +35,4 @@ jobs:
         with:
           files: |
             ./dist/msix/tak.exe
-            ./dist/tak.msix
+            ./dist/tak-experimental.msix

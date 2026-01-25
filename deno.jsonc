@@ -5,7 +5,7 @@
     "dev-client": "cd client && deno task dev",
     "dist": "cd client && deno task build && cd .. && deno task compile",
     "compile": "deno compile -A --unstable-kv --unstable-raw-imports --no-terminal -o tak --icon ./favicon_round_small.ico --include client/build main.ts",
-    "pack": "deno run -A ./tools/pack.ts && cd ./dist && winapp pack ./msix --cert $APPX_CERT",
+    "pack": "deno run -A ./tools/pack.ts && cd ./dist && winapp pack ./msix --cert $APPX_CERT && mv tak.msix tak-exprimental.msix",
     "repack": "deno task dist && deno task pack",
 
     // we use sleep to make give time to the client to start.
