@@ -1,4 +1,4 @@
-import { Timer } from "./client/src/types.ts";
+import { Timer } from "../client/src/types.ts";
 import { sliceIntoBatches } from "./utils.ts";
 
 export async function getTimersValuesInBatches(
@@ -21,3 +21,8 @@ export async function getTimersValuesInBatches(
   }
   return timers;
 }
+
+export const index_timers_by_start_date = "timers_by_start_date";
+export const compositeKeyStart = (timer: { start: string; id: string }) => {
+  return `${timer.start}__${timer.id}`;
+};
