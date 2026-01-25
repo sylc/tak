@@ -24,6 +24,7 @@ jobs:
           deno task install && deno task dist
       - uses: microsoft/setup-WinAppCli@v0.1
       - name: Windows msix
+        shell: bash
         run:  |
           echo "${{ secrets.APPX_CERT }}" | base64 --decode > cert.pfx
           APPX_CERT="cert.pfx" deno task pack
