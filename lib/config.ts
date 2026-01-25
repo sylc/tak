@@ -5,13 +5,16 @@ import publisherId from "../publisherId.txt" with { type: "text" };
 export const version = versionData;
 
 export const isDev = Deno.env.get("DEV") === "true";
+const isAppx = Deno.args.includes("--appx") && Deno.build.os === "windows";
 
 let _rootStoragefolder = "./.tak";
 
 if (!isDev) {
   if (Deno.build.os === "windows") {
-    // set root to appData
-    _rootStoragefolder = path.join(Deno.env.get("LOCALAPPDATA")!, "tak");
+    // set root to appData only on appx for now.
+    if (isAppx) {
+      _rootStoragefolder = path.join(Deno.env.get("LOCALAPPDATA")!, "tak");
+    }
   } else {
     // set root to home
     _rootStoragefolder = path.join("HOME", "tak");
@@ -25,10 +28,9 @@ export const dbPath = path.join(rootStoragefolder, "db");
 
 export const exportsFolderPath = path.join(rootStoragefolder, "exports");
 
-export const appxRealExportsFolderPath =
-  (Deno.build.os === "windows" && Deno.args.includes("--appx"))
-    ? path.join(
-      Deno.env.get("LOCALAPPDATA")!,
-      `Packages/tak_${publisherId}/LocalCache/Local/tak/exports`,
-    )
-    : exportsFolderPath;
+export const appxRealExportsFolderPath = isAppx
+  ? path.join(
+    Deno.env.get("LOCALAPPDATA")!,
+    `Packages/tak_${publisherId}/LocalCache/Local/tak/exports`,
+  )
+  : exportsFolderPath;
