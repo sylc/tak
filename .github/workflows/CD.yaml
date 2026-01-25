@@ -27,7 +27,8 @@ jobs:
         shell: bash
         run:  |
           echo "${{ secrets.APPX_CERT }}" | base64 --decode > cert.pfx
-          APPX_CERT="cert.pfx" deno task pack
+          echo "${{ github.workspace }}/cert.pfx"
+          APPX_CERT="${{ github.workspace }}/cert.pfx" deno task pack
           ls ./dist
       # - name: Release
       #   uses: softprops/action-gh-release@v2
