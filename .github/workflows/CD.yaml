@@ -22,8 +22,17 @@ jobs:
           echo ${{ github.ref_name }}
           echo ${{ github.ref_name }} > version.txt
           deno task install && deno task dist
+      - uses: microsoft/setup-WinAppCli@v0.1
+      - name: Windows msix
+        shell: bash
+        run:  |
+          echo "${{ secrets.APPX_CERT }}" | base64 --decode > cert.pfx
+          echo "${{ github.workspace }}/cert.pfx"
+          APPX_CERT="${{ github.workspace }}/cert.pfx" deno task pack
+          ls ./dist
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            tak.exe
+            ./dist/msix/tak.exe
+            ./dist/tak-experimental.msix

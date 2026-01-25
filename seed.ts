@@ -1,7 +1,10 @@
 import { ulid } from "ulid";
 import { addHours, subDays } from "date-fns";
 import type { Timer } from "./client/src/types.ts";
-import { compositeKeyStart, index_timers_by_start_date } from "./lib/utils.ts";
+import {
+  compositeKeyStart,
+  index_timers_by_start_date,
+} from "./lib/utils_db.ts";
 
 function createRandomTimer(
   startDate: Date,

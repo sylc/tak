@@ -19,19 +19,31 @@ import type {
   WeeklyByProjectReport,
 } from "./client/src/types.ts";
 
-import { getPort, isDev, log, setVersion } from "./utils.ts";
-import { compositeKeyStart, index_timers_by_start_date } from "./lib/utils.ts";
-import version from "./version.txt" with { type: "text" };
+import { getPort } from "./lib/utils.ts";
+import { log } from "./lib/log.ts";
 import { resolve } from "resolve";
-import { getTimersValuesInBatches } from "./utils_db.ts";
-setVersion(version);
+import {
+  compositeKeyStart,
+  getTimersValuesInBatches,
+  index_timers_by_start_date,
+} from "./lib/utils_db.ts";
+import {
+  appxRealExportsFolderPath,
+  dbPath,
+  exportsFolderPath,
+  isDev,
+  logsFolderPath,
+  rootStoragefolder,
+  version,
+} from "./lib/config.ts";
 
 try {
   const webui = new WebUI();
 
-  Deno.mkdirSync("./.tak", { recursive: true });
-  Deno.mkdirSync("./.tak/logs", { recursive: true });
-  const kv = await Deno.openKv("./.tak/db");
+  Deno.mkdirSync(rootStoragefolder, { recursive: true });
+  Deno.mkdirSync(logsFolderPath, { recursive: true });
+  Deno.mkdirSync(exportsFolderPath, { recursive: true });
+  const kv = await Deno.openKv(dbPath);
 
   // Active timer
   webui.bind("startActiveTimer", async (e: WebUI.Event) => {
@@ -314,10 +326,10 @@ try {
   }
 
   webui.bind("exportCSV", async () => {
-    const exportFilePath = resolve(
-      Deno.cwd(),
-      `export_${formatDate(new Date(), "yyyy-MM-dd_HH-mm-ss")}.csv`,
-    );
+    const filename = `export_${
+      formatDate(new Date(), "yyyy-MM-dd_HH-mm-ss")
+    }.csv`;
+
     // constructData
     const timers = await Array.fromAsync(
       kv.list<Timer>({ prefix: ["timers"] }),
@@ -356,9 +368,16 @@ try {
       },
     );
 
+    const exportFilePath = resolve(
+      exportsFolderPath,
+      filename,
+    );
+
     await Deno.writeTextFile(exportFilePath, csvData);
 
-    return JSON.stringify({ exportFilePath });
+    return JSON.stringify({
+      exportFilePath: resolve(appxRealExportsFolderPath, filename),
+    });
   });
 
   //////

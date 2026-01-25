@@ -1,6 +1,8 @@
 stderr
 *.exe
+*.msix
 
 export_*
 .tak
 z_*
+dist

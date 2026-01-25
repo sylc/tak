@@ -1,0 +1,5 @@
+https://github.com/microsoft/winappCli/blob/main/docs/guides/packaging-cli.md
+
+winapp manifest generate --executable .\tak.exe
+
+winapp pack .\windows --cert C:\Users\sylva\Documents\Projects\wincerts\devcert.pfx
