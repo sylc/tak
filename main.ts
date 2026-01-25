@@ -28,9 +28,11 @@ import {
   index_timers_by_start_date,
 } from "./lib/utils_db.ts";
 import {
+  appxRealExportsFolderPath,
   dbPath,
+  exportsFolderPath,
   isDev,
-  logsFilePath,
+  logsFolderPath,
   rootStoragefolder,
   version,
 } from "./lib/config.ts";
@@ -39,7 +41,8 @@ try {
   const webui = new WebUI();
 
   Deno.mkdirSync(rootStoragefolder, { recursive: true });
-  Deno.mkdirSync(logsFilePath, { recursive: true });
+  Deno.mkdirSync(logsFolderPath, { recursive: true });
+  Deno.mkdirSync(exportsFolderPath, { recursive: true });
   const kv = await Deno.openKv(dbPath);
 
   // Active timer
@@ -323,10 +326,10 @@ try {
   }
 
   webui.bind("exportCSV", async () => {
-    const exportFilePath = resolve(
-      Deno.cwd(),
-      `export_${formatDate(new Date(), "yyyy-MM-dd_HH-mm-ss")}.csv`,
-    );
+    const filename = `export_${
+      formatDate(new Date(), "yyyy-MM-dd_HH-mm-ss")
+    }.csv`;
+
     // constructData
     const timers = await Array.fromAsync(
       kv.list<Timer>({ prefix: ["timers"] }),
@@ -365,9 +368,16 @@ try {
       },
     );
 
+    const exportFilePath = resolve(
+      exportsFolderPath,
+      filename,
+    );
+
     await Deno.writeTextFile(exportFilePath, csvData);
 
-    return JSON.stringify({ exportFilePath });
+    return JSON.stringify({
+      exportFilePath: resolve(appxRealExportsFolderPath, filename),
+    });
   });
 
   //////

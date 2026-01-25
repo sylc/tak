@@ -2,10 +2,11 @@
   "version": "5",
   "specifiers": {
     "jsr:@std/csv@^1.0.6": "1.0.6",
+    "jsr:@std/fs@*": "1.0.21",
+    "jsr:@std/fs@1.0.21": "1.0.21",
     "jsr:@std/fs@^1.0.19": "1.0.21",
     "jsr:@std/internal@^1.0.12": "1.0.12",
     "jsr:@std/media-types@1.1.0": "1.1.0",
-    "jsr:@std/path@*": "1.1.4",
     "jsr:@std/path@^1.1.2": "1.1.4",
     "jsr:@std/path@^1.1.4": "1.1.4",
     "jsr:@std/ulid@1.0.0": "1.0.0",
@@ -43,7 +44,7 @@
     "@webui/deno-webui@2.5.13": {
       "integrity": "6f03345e19b943177766a30ed728a0e16c228757b5469bceee6092a7e18a25f9",
       "dependencies": [
-        "jsr:@std/fs",
+        "jsr:@std/fs@^1.0.19",
         "jsr:@std/path@^1.1.2",
         "jsr:@zip-js/zip-js"
       ]
@@ -65,7 +66,6 @@
     "dependencies": [
       "jsr:@std/csv@^1.0.6",
       "jsr:@std/media-types@1.1.0",
-      "jsr:@std/path@*",
       "jsr:@std/path@^1.1.4",
       "jsr:@std/ulid@1.0.0",
       "jsr:@webui/deno-webui@2.5.13",

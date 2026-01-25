@@ -2,8 +2,8 @@ name: release
 
 on:
   push:
-    tags:
-      - "v*.*.*"
+    # tags:
+    #   - "v*.*.*"
 
 permissions:
   contents: write
@@ -22,8 +22,15 @@ jobs:
           echo ${{ github.ref_name }}
           echo ${{ github.ref_name }} > version.txt
           deno task install && deno task dist
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            tak.exe
+      - uses: microsoft/setup-WinAppCli@v0.1
+      - name: Windows msix
+        run:  |
+          echo "${{ secrets.APPX_CERT }}" | base64 --decode > certificate.pfx
+          deno task pack
+          ls ./dist
+      # - name: Release
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     files: |
+      #       ./dist/msix/tak.exe
+      #       ./dist/tak.msix

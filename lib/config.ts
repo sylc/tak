@@ -1,5 +1,7 @@
-import path from "path";
+import * as path from "path";
 import versionData from "../version.txt" with { type: "text" };
+import publisherId from "../publisherId.txt" with { type: "text" };
+
 export const version = versionData;
 
 export const isDev = Deno.env.get("DEV") === "true";
@@ -17,5 +19,16 @@ if (!isDev) {
 }
 
 export const rootStoragefolder = _rootStoragefolder;
-export const logsFilePath = path.join(rootStoragefolder, "logs", "log.txt");
+export const logsFolderPath = path.join(rootStoragefolder, "logs");
+export const logsFilePath = path.join(logsFolderPath, "log.txt");
 export const dbPath = path.join(rootStoragefolder, "db");
+
+export const exportsFolderPath = path.join(rootStoragefolder, "exports");
+
+export const appxRealExportsFolderPath =
+  (Deno.build.os === "windows" && Deno.args.includes("--appx"))
+    ? path.join(
+      Deno.env.get("LOCALAPPDATA")!,
+      `Packages/tak_${publisherId}/LocalCache/Local/tak/exports`,
+    )
+    : exportsFolderPath;
