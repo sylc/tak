@@ -2,7 +2,9 @@ import { copySync } from "jsr:@std/fs@1.0.21/copy";
 import version from "../version.txt" with { type: "text" };
 
 // clean dist
-Deno.removeSync("./dist", { recursive: true });
+try {
+  Deno.removeSync("./dist", { recursive: true });
+} catch {}
 
 // create dist and dist/msix
 Deno.mkdirSync("./dist/msix", { recursive: true });
