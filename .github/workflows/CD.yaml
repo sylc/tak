@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Build
         run: |
-          echo ${{ github.ref_name }}
+          echo "${{ github.ref_name }}"
           echo ${{ github.ref_name }} > version.txt
           deno task install && deno task dist
       - uses: microsoft/setup-WinAppCli@v0.1
