@@ -2,7 +2,7 @@ import * as path from "path";
 import versionData from "../version.txt" with { type: "text" };
 import publisherId from "../publisherId.txt" with { type: "text" };
 
-export const version = versionData;
+export const version = versionData.trim();
 
 export const isDev = Deno.env.get("DEV") === "true";
 const isAppx = Deno.args.includes("--appx") && Deno.build.os === "windows";
