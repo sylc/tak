@@ -15,11 +15,8 @@ copySync("./tak.exe", "./dist/msix/tak.exe", { overwrite: true });
 
 // replace version in appxmanifest
 let appxmanifest = Deno.readTextFileSync("./dist/msix/appxmanifest.xml");
-console.log(
-  `version "${version}" "${version.replace("v", "").trim()}.0"`,
-);
 appxmanifest = appxmanifest.replace(
   'Version="0.0.0.0"',
-  `Version="${version.replace("v", "").replace(" ", "")}.0"`,
+  `Version="${version.replace("v", "").trim()}.0"`,
 );
 Deno.writeTextFileSync("./dist/msix/appxmanifest.xml", appxmanifest);
