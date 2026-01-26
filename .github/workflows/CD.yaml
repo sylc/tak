@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
       - name: Build
         run: |
-          echo ${{ github.ref_name }}
+          echo "${{ github.ref_name }}"
           echo ${{ github.ref_name }} > version.txt
           deno task install && deno task dist
       - uses: microsoft/setup-WinAppCli@v0.1
@@ -30,9 +30,9 @@ jobs:
           echo "${{ github.workspace }}/cert.pfx"
           APPX_CERT="${{ github.workspace }}/cert.pfx" deno task pack
           ls ./dist
-      - name: Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: |
-            ./dist/msix/tak.exe
-            ./dist/tak-experimental.msix
+      # - name: Release
+      #   uses: softprops/action-gh-release@v2
+      #   with:
+      #     files: |
+      #       ./dist/msix/tak.exe
+      #       ./dist/tak-experimental.msix
