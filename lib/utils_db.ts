@@ -3,14 +3,16 @@ import { sliceIntoBatches } from "./utils.ts";
 
 export async function getTimersValuesInBatches(
   kv: Deno.Kv,
-  timerIds: Deno.KvEntry<string>[],
+  timerIds: (Deno.KvEntry<string> | string)[],
 ) {
   const timersBatches = sliceIntoBatches(timerIds, 8);
   let entries: Deno.KvEntryMaybe<Timer>[] = [];
   for (const batch of timersBatches) {
     entries = entries.concat(
       await kv.getMany<Timer[]>(
-        batch.map((id) => ["timers", id.value]),
+        batch.map((
+          item,
+        ) => ["timers", typeof item === "string" ? item : item.value]),
       ),
     );
   }
@@ -21,8 +23,3 @@ export async function getTimersValuesInBatches(
   }
   return timers;
 }
-
-export const index_timers_by_start_date = "timers_by_start_date";
-export const compositeKeyStart = (timer: { start: string; id: string }) => {
-  return `${timer.start}__${timer.id}`;
-};

@@ -5,14 +5,7 @@ import { ulid } from "ulid";
 import * as media_types from "media-types";
 import { extname } from "extname";
 import { stringify } from "stringify";
-import {
-  addDays,
-  endOfWeek,
-  formatDate,
-  getDay,
-  getWeek,
-  getYear,
-} from "date-fns";
+import { formatDate, getDay, getWeek, getYear } from "date-fns";
 import type {
   Project,
   Timer,
@@ -23,11 +16,6 @@ import { getPort } from "./lib/utils.ts";
 import { log } from "./lib/log.ts";
 import { resolve } from "resolve";
 import {
-  compositeKeyStart,
-  getTimersValuesInBatches,
-  index_timers_by_start_date,
-} from "./lib/utils_db.ts";
-import {
   appxRealExportsFolderPath,
   dbPath,
   exportsFolderPath,
@@ -36,6 +24,7 @@ import {
   rootStoragefolder,
   version,
 } from "./lib/config.ts";
+import { TimersAdaptor } from "./lib/TimersAdaptor.ts";
 
 try {
   const webui = new WebUI();
@@ -44,6 +33,8 @@ try {
   Deno.mkdirSync(logsFolderPath, { recursive: true });
   Deno.mkdirSync(exportsFolderPath, { recursive: true });
   const kv = await Deno.openKv(dbPath);
+
+  const timersX = new TimersAdaptor(kv);
 
   // Active timer
   webui.bind("startActiveTimer", async (e: WebUI.Event) => {
@@ -128,8 +119,11 @@ try {
       })
       .set(
         [
-          index_timers_by_start_date,
-          compositeKeyStart({ start: activeTimer.start, id: activeTimer.id }),
+          TimersAdaptor.index_timers_by_start_date,
+          TimersAdaptor.compositeKeyStart({
+            start: activeTimer.start,
+            id: activeTimer.id,
+          }),
         ],
         activeTimer.id,
       ).commit();
@@ -138,27 +132,15 @@ try {
   ////////////////////////////////////////////////////
   // Generic timers
   webui.bind("timers", async (_e: WebUI.Event) => {
-    return JSON.stringify(await timers());
+    return JSON.stringify(await timersX.timers());
   });
 
   webui.bind("deleteTimer", async (e: WebUI.Event) => {
     const timerId = e.arg.string(0);
     console.log("deleting", timerId);
 
-    const timer = (await kv.get<Timer>(["timers", timerId])).value!;
-    if (timer.projectId) {
-      console.log("removing from project", timer.projectId);
-      await kv.delete(["projects", timer.projectId, "timers", timer.id]);
-    }
-    await kv.atomic()
-      .delete(["timers", timerId])
-      .delete(
-        [
-          index_timers_by_start_date,
-          compositeKeyStart(timer),
-        ],
-      ).commit();
-    return JSON.stringify(await timers());
+    await timersX.delete(timerId);
+    return JSON.stringify(await timersX.timers());
   });
 
   webui.bind("updateTimerName", async (e: WebUI.Event) => {
@@ -166,8 +148,7 @@ try {
     const newName = e.arg.string(1);
     console.log("update timer Name", timerId, newName);
 
-    const timer = (await kv.get<Timer>(["timers", timerId])).value!;
-    await kv.set(["timers", timerId], { ...timer, name: newName });
+    await timersX.updateTimerName(timerId, newName);
   });
 
   webui.bind("setTimerRange", async (e: WebUI.Event) => {
@@ -176,22 +157,7 @@ try {
     const stop = e.arg.string(2);
     console.log("set timer range", timerId, start, stop);
 
-    const timer = (await kv.get<Timer>(["timers", timerId])).value!;
-    const timerUpdated = { ...timer, start, stop };
-    await kv.atomic()
-      .set(["timers", timerId], timerUpdated)
-      .commit();
-
-    // updating index
-    if (timer.start !== start) {
-      await kv.atomic()
-        .delete([index_timers_by_start_date, compositeKeyStart(timer)])
-        .set(
-          [index_timers_by_start_date, compositeKeyStart(timerUpdated)],
-          timerId,
-        )
-        .commit();
-    }
+    await timersX.setTimerRange(timerId, start, stop);
   });
 
   webui.bind("setProject", async (e: WebUI.Event) => {
@@ -199,38 +165,8 @@ try {
     const projectId = e.arg.string(1);
     console.log("Assign project", timerId, projectId);
 
-    const timer = (await kv.get<Timer>(["timers", timerId])).value!;
-    const oldProjectId = timer.projectId || "NO_PROJECT";
-    await kv.atomic()
-      .set(["timers", timerId], { ...timer, projectId })
-      .delete(["projects", oldProjectId, "timers", timerId])
-      .set(["projects", projectId, "timers", timerId], { ...timer, projectId })
-      .commit();
+    await timersX.setProject(timerId, projectId);
   });
-
-  // limited to the last 5000.
-  // todo this is not great. we should have an index by start time;
-  async function timers(opts?: { startOfWeekDay: string }) {
-    const start = [
-      index_timers_by_start_date,
-      (addDays(new Date(), -21)).toISOString(),
-    ];
-    const end = [index_timers_by_start_date, "5000"];
-
-    if (opts?.startOfWeekDay) {
-      // get the startDate of the week.
-      start[1] = opts?.startOfWeekDay;
-      // get the endDate of teh week
-      end[1] = endOfWeek(new Date(opts?.startOfWeekDay), { weekStartsOn: 1 })
-        .toISOString();
-    }
-
-    const timerIds = await Array.fromAsync(
-      kv.list<string>({ start, end }, { reverse: true }),
-    );
-
-    return await getTimersValuesInBatches(kv, timerIds);
-  }
 
   /////////////////// Projects
   // save project
@@ -266,7 +202,7 @@ try {
     );
     const projects: Project[] = [];
     for (const entry of entries) {
-      if (entry.key.length > 2) continue; // keys like [projects, "abc", timers, "abe"] will be skipped.
+      if (entry.key.length > 2) continue; // keys like [projects, "abc", timers, true] will be skipped.
       projects.push(entry.value!);
     }
     return JSON.stringify(
@@ -282,7 +218,7 @@ try {
 
   async function getByWeeklyAndProjects(startOfWeek: string) {
     // found timers for last week. then separate by projects then accumulate by day
-    const timersList = await timers({ startOfWeekDay: startOfWeek });
+    const timersList = await timersX.timers({ startOfWeekDay: startOfWeek });
     const accumulated: Record<
       string,
       Record<
@@ -328,14 +264,20 @@ try {
   webui.bind("getTasksByProject", async (e: WebUI.Event) => {
     const projectId = e.arg.string(0);
     const entries = await Array.fromAsync(
-      kv.list<Timer>({ prefix: ["projects", projectId, "timers"] }),
+      kv.list<string>({ prefix: ["projects", projectId, "timers"] }),
     );
-    const timers: Timer[] = [];
+
+    const timerIds: string[] = [];
+
     for (const entry of entries) {
-      timers.push(entry.value!);
+      timerIds.push(entry.key[3] as string);
     }
-    timers.sort((a, b) => b.start.localeCompare(a.start));
-    return JSON.stringify({ project: { id: projectId }, timers });
+    const timersList: Timer[] = await timersX.getTimersValuesInBatches(
+      timerIds,
+    );
+
+    timersList.sort((a, b) => b.start.localeCompare(a.start));
+    return JSON.stringify({ project: { id: projectId }, timers: timersList });
   });
 
   webui.bind("exportCSV", async () => {

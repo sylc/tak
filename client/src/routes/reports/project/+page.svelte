@@ -8,15 +8,21 @@
   import { ChevronDownOutline } from "flowbite-svelte-icons";
   import Duration from "../../Duration.svelte";
   import { Dropdown, DropdownItem } from "flowbite-svelte";
+  import { sumTimersDurations } from "$lib/utils";
 
   let timers = $state<Timer[]>([]);
   let selectedProject = $state({ id: "", name: "" });
   let isOpen = $state(false);
 
+  const totalTime = $derived.by(() => {
+    return sumTimersDurations(timers);
+  });
+
   const onSelectProject = async (pId: string, name: string) => {
     // load tasks for project
     selectedProject = { id: pId, name: name };
     const res = JSON.parse(await webui.getTasksByProject(pId));
+    console.log(res);
     timers = res.timers;
   };
 
@@ -26,12 +32,12 @@
 </script>
 
 <div class="px-2">
-  <Button>{
+  <Button outline class="mt-2">{
       selectedProject.name === ""
         ? "Select Project"
         : selectedProject.name
     }<ChevronDownOutline
-      class="ms-2 h-6 w-6 text-white dark:text-white"
+      class="ms-2 h-6 w-6"
     /></Button>
   <Dropdown bind:isOpen simple>
     {#each projectsStore.projects.projects as project}
@@ -44,7 +50,12 @@
     {/each}
   </Dropdown>
   {#if timers.length}
-    <div class="pt-2 font-semibold">Tasks</div>
+    <div class="pt-2 font-semibold flex flex-row gap-1">
+      <div>Tasks ({timers.length})</div><Duration
+        duration={totalTime}
+        type="hourFractions"
+      />h
+    </div>
   {/if}
   <ul>
     {#each timers as t}
