@@ -1,7 +1,7 @@
 // Timers are stored in 3 ways in deno kv. They are stored:
-// - under the timers namespace
-// - in an index sorted by start time
-// - referenced by the projects namespace
+// - under the timers namespace eg: ["timers", timerId, { ... }: Timer ]
+// - in an index sorted by start time eg: [`${timer.start}__${timer.id}`, timer.id]
+// - referenced by the projects namespace eg: ["projects", timer.projectId, "timers", timer.id, true]
 
 import { addDays } from "date-fns/addDays";
 import { getTimersValuesInBatches } from "./utils_db.ts";
