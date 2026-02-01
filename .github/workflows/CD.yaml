@@ -25,7 +25,7 @@ jobs:
       - uses: microsoft/setup-WinAppCli@v0.1
       - name: Windows msix
         shell: bash
-        run:  |
+        run: |
           echo "${{ secrets.APPX_CERT }}" | base64 --decode > cert.pfx
           echo "${{ github.workspace }}/cert.pfx"
           APPX_CERT="${{ github.workspace }}/cert.pfx" deno task pack
