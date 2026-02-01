@@ -1,5 +1,8 @@
 import { Timer } from "./client/src/types.ts";
-import { compositeKeyStart, index_timers_by_start_date } from "./lib/utils.ts";
+import {
+  compositeKeyStart,
+  index_timers_by_start_date,
+} from "./lib/utils_db.ts";
 
 export const upgrade = async (kv: Deno.Kv) => {
   // get all timers
