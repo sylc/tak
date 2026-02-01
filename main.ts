@@ -325,6 +325,19 @@ try {
     return res;
   }
 
+  webui.bind("getTasksByProject", async (e: WebUI.Event) => {
+    const projectId = e.arg.string(0);
+    const entries = await Array.fromAsync(
+      kv.list<Timer>({ prefix: ["projects", projectId, "timers"] }),
+    );
+    const timers: Timer[] = [];
+    for (const entry of entries) {
+      timers.push(entry.value!);
+    }
+    timers.sort((a, b) => b.start.localeCompare(a.start));
+    return JSON.stringify({ project: { id: projectId }, timers });
+  });
+
   webui.bind("exportCSV", async () => {
     const filename = `export_${
       formatDate(new Date(), "yyyy-MM-dd_HH-mm-ss")

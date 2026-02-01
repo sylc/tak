@@ -1,59 +1,73 @@
 <script lang="ts">
-  import {
-    Button,
-    Table,
-    TableBody,
-    TableBodyCell,
-    TableBodyRow,
-    TableHead,
-    TableHeadCell,
-  } from "flowbite-svelte";
+  import { Button } from "flowbite-svelte";
   import { onMount } from "svelte";
-  import type { Timer, WeeklyByProjectReport } from "../../../types";
+  import type { Timer } from "../../../types";
   import { projectsStore } from "../../projectsStore.svelte";
 
-  import { formatDuration, getWeekKey, msToHours } from "../../utils";
-  import {
-    ArrowLeftOutline,
-    ArrowRightOutline,
-    ChevronDownOutline,
-    ChevronUpOutline,
-  } from "flowbite-svelte-icons";
-  import { addDays } from "date-fns";
+  import { formatDay, formatDuration } from "../../utils";
+  import { ChevronDownOutline } from "flowbite-svelte-icons";
   import Duration from "../../Duration.svelte";
-  import DropdownWithSearch from "$lib/DropdownWithSearch.svelte";
   import { Dropdown, DropdownItem } from "flowbite-svelte";
 
-  const timers = $state<Timer[]>([]);
+  let timers = $state<Timer[]>([]);
+  let selectedProject = $state({ id: "", name: "" });
+  let isOpen = $state(false);
 
-  const reload = async () => {
-  };
-
-  const onSelectProject = (pId: string) => {
+  const onSelectProject = async (pId: string, name: string) => {
     // load tasks for project
+    selectedProject = { id: pId, name: name };
+    const res = JSON.parse(await webui.getTasksByProject(pId));
+    timers = res.timers;
   };
 
   onMount(async () => {
-    await reload();
     projectsStore.loadProjects();
   });
 </script>
 
-<Button>Select Project<ChevronDownOutline
-    class="ms-2 h-6 w-6 text-white dark:text-white"
-  /></Button>
-<Dropdown simple>
-  {#each projectsStore.projects.projects as project}
-    <DropdownItem
-      onclick={(e) => {
-        onSelectProject(project.id);
-      }}
-    >{project.name}</DropdownItem>
-  {/each}
-</Dropdown>
-<div>Tasks for project</div>
-<div>
-  {#each timers as t}
-    <div>{t.name}</div>
-  {/each}
+<div class="px-2">
+  <Button>{
+      selectedProject.name === ""
+        ? "Select Project"
+        : selectedProject.name
+    }<ChevronDownOutline
+      class="ms-2 h-6 w-6 text-white dark:text-white"
+    /></Button>
+  <Dropdown bind:isOpen simple>
+    {#each projectsStore.projects.projects as project}
+      <DropdownItem
+        onclick={(e) => {
+          onSelectProject(project.id, project.name);
+          isOpen = false;
+        }}
+      >{project.name}</DropdownItem>
+    {/each}
+  </Dropdown>
+  {#if timers.length}
+    <div class="pt-2 font-semibold">Tasks</div>
+  {/if}
+  <ul>
+    {#each timers as t}
+      <li
+        class="border rounded-md p-2 my-2 flex flex-row justify-between w-full"
+      >
+        <div>
+          {t.name}
+        </div>
+        <div class="flex flex-row">
+          <div class="pr-3">
+            {formatDay(t.start, "dd/MM/yyyy hh:mm aa")} - {
+              formatDay(t.stop, "dd/MM/yyyy hh:mm aa")
+            }
+          </div>
+          <Duration
+            duration={formatDuration(t.start, t.stop)}
+            type="hourFractions"
+            suffix="h"
+          >
+          </Duration>
+        </div>
+      </li>
+    {/each}
+  </ul>
 </div>

@@ -22,7 +22,7 @@
     </li>
     <li
       class={`px-3 rounded-md ${
-        isActive("/reports/projects")
+        isActive("/reports/project")
           ? "underline text-black font-semibold"
           : ""
       }`}
