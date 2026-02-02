@@ -37,6 +37,9 @@ declare global {
     getByWeeklyAndProjects: (startOfWeek: string) => Promise<string>;
     exportCSV: () => Promise<string>;
     appMeta: () => Promise<string>;
+    getTasksByProject: (
+      pId: string,
+    ) => Promise<string>;
   };
 }
 

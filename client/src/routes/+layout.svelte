@@ -4,8 +4,12 @@
 
   let { children } = $props();
 
-  const isActive = (path: string) => {
-    if (page.url.pathname === path) return true;
+  const isActive = (path: string, root?: boolean) => {
+    if (root) {
+      if (page.url.pathname === path) return true;
+    } else {
+      if (page.url.pathname.startsWith(path)) return true;
+    }
     return false;
   };
 </script>
@@ -14,7 +18,7 @@
   <ul class="flex gap-x-2 px-2 py-1 bg-white">
     <li
       class={`pl-2 pr-3 rounded-md ${
-        isActive("/") ? "bg-amber-400 text-black font-semibold" : ""
+        isActive("/", true) ? "bg-amber-400 text-black font-semibold" : ""
       }`}
     >
       <a href="/">Timer</a>

@@ -1,10 +1,7 @@
 import { ulid } from "ulid";
 import { addHours, subDays } from "date-fns";
 import type { Timer } from "./client/src/types.ts";
-import {
-  compositeKeyStart,
-  index_timers_by_start_date,
-} from "./lib/utils_db.ts";
+import { TimersAdaptor } from "./lib/TimersAdaptor.ts";
 
 function createRandomTimer(
   startDate: Date,
@@ -51,7 +48,10 @@ async function seed() {
 
   for (const timer of timersToCreate) {
     op.set(["timers", timer.id], timer).set(
-      [index_timers_by_start_date, compositeKeyStart(timer)],
+      [
+        TimersAdaptor.index_timers_by_start_date,
+        TimersAdaptor.compositeKeyStart(timer),
+      ],
       timer.id,
     );
   }

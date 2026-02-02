@@ -1,8 +1,8 @@
 import { addDays, format, getWeek, getYear, startOfWeek } from "date-fns";
 
-export const formatDay = (dateString: string) => {
+export const formatDay = (dateString: string, formatPattern = "hh:mm aa") => {
   try {
-    return format(new Date(dateString), "hh:mm aa");
+    return format(new Date(dateString), formatPattern);
   } catch (e) {
     console.log(dateString, e);
   }

@@ -1,8 +1,5 @@
 import { Timer } from "./client/src/types.ts";
-import {
-  compositeKeyStart,
-  index_timers_by_start_date,
-} from "./lib/utils_db.ts";
+import { TimersAdaptor } from "./lib/TimersAdaptor.ts";
 
 export const upgrade = async (kv: Deno.Kv) => {
   // get all timers
@@ -13,8 +10,8 @@ export const upgrade = async (kv: Deno.Kv) => {
   for (const entry of entries) {
     timers.push(entry.value!);
     const indexValue = (await kv.get([
-      index_timers_by_start_date,
-      compositeKeyStart(entry.value!),
+      TimersAdaptor.index_timers_by_start_date,
+      TimersAdaptor.compositeKeyStart(entry.value!),
     ])).value;
 
     if (!indexValue) {
@@ -25,8 +22,8 @@ export const upgrade = async (kv: Deno.Kv) => {
         entry.value.id,
       );
       await kv.set([
-        index_timers_by_start_date,
-        compositeKeyStart(entry.value!),
+        TimersAdaptor.index_timers_by_start_date,
+        TimersAdaptor.compositeKeyStart(entry.value!),
       ], entry.value.id);
       // creating it.
     } else {
