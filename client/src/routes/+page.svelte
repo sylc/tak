@@ -1,5 +1,11 @@
 <script lang="ts">
-  import { Button, Input, Timepicker, Toggle } from "flowbite-svelte";
+  import {
+    Button,
+    Input,
+    progressStepper,
+    Timepicker,
+    Toggle,
+  } from "flowbite-svelte";
   import { PlayOutline, StopOutline } from "flowbite-svelte-icons";
 
   import {
@@ -18,7 +24,7 @@
   import EditableDiv from "./EditableDiv.svelte";
   import type { Timer } from "../types";
   import { settings } from "./states.svelte";
-  import EditableDuration from "./EditableDuration.svelte";
+  import EditableTimerEntry from "./EditableTimerEntry.svelte";
   import DropdownWithSearch from "$lib/DropdownWithSearch.svelte";
   import TimerDropdownMenuIcon from "$lib/TimerDropdownMenuIcon.svelte";
   import { projectsStore } from "./projectsStore.svelte";
@@ -173,6 +179,14 @@
   const onTimerNameUpdate = async () => {
     await webui.updateActiveTimerName(status.name);
   };
+
+  const saveNewEntry = async (
+    arg: { name?: string; start: string; stop: string },
+  ) => {
+    const taskName = arg.name || "New Entry";
+    await webui.postNewTimer(taskName, arg.start, arg.stop);
+    listOfTimers = JSON.parse(await webui.timers());
+  };
 </script>
 
 <div class="flex flex-col" style="max-height: calc(100vh - 40px)">
@@ -268,11 +282,21 @@
       </div>
     </div>
   </div>
-  <div class="grow-1 overflow-auto">
+  <div class="grow overflow-auto">
     <hr />
-    <div class="pt-2 px-2">
+    <div class="pt-2 px-2 flex justify-between">
       <Toggle bind:checked={onlyNoProject} size="small"
       >Only tasks with No Project</Toggle>
+      <div class="cursor-pointer">
+        <EditableTimerEntry
+          id="new-entry"
+          start={(new Date()).toISOString()}
+          stop={(new Date()).toISOString()}
+          onSubmit={saveNewEntry}
+        >
+          + new entry
+        </EditableTimerEntry>
+      </div>
     </div>
     {#each tasksByDay as tDay}
       <div class="bg-white my-2 px-2">
@@ -301,12 +325,14 @@
                       />
                     </div>
                     {#key taskForDay.id}
-                      <EditableDuration
+                      <EditableTimerEntry
                         id={taskForDay.id}
                         start={taskForDay.start}
                         stop={taskForDay.stop}
-                        onSubmit={(start, stop) =>
+                        onSubmit={({ start, stop }) =>
                           onEditTimeRange(taskForDay.id, start, stop)}
+                        showNameField={false}
+                        showProjectField={false}
                       />
                     {/key}
                   </div>

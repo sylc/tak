@@ -21,6 +21,24 @@ export class TimersAdaptor {
     this.#kv = kv;
   }
 
+  // Create a new Entry
+  createNewTimer = async (timer: Timer, clearActiveTimer?: boolean) => {
+    const save = this.#kv.atomic()
+      .set(["timers", timer.id], timer)
+      .set(
+        [
+          TimersAdaptor.index_timers_by_start_date,
+          TimersAdaptor.compositeKeyStart({
+            start: timer.start,
+            id: timer.id,
+          }),
+        ],
+        timer.id,
+      );
+    if (clearActiveTimer) save.set(["activeTimer"], null);
+    await save.commit();
+  };
+
   // get the last timers
   // limited to the last 5000.
   timers = async (opts?: { startOfWeekDay: string }) => {
