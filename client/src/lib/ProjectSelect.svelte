@@ -5,19 +5,18 @@
 
   interface Props {
     selected: string;
-    items: { id: string; name: string }[];
     onSelection: (newId: string | "NO_PROJECT") => void;
     dense?: boolean;
   }
-  const { items, selected, onSelection, dense }: Props = $props();
+  const { selected, onSelection, dense }: Props = $props();
 
   let searchTerm = $state("");
   let isOpen = $state(false);
 
   let filteredItems = $derived(
-    items.filter((item) =>
-      item.name.toLowerCase().indexOf(searchTerm?.toLowerCase()) !== -1
-    ),
+    projectsStore.projects.projects.filter((p) => !p.archived).filter((
+      item,
+    ) => item.name.toLowerCase().indexOf(searchTerm?.toLowerCase()) !== -1),
   );
 </script>
 

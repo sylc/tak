@@ -11,7 +11,7 @@
   import { format, parse } from "date-fns";
   import type { Snippet } from "svelte";
   import EditableDiv from "./EditableDiv.svelte";
-  import DropdownWithSearch from "$lib/DropdownWithSearch.svelte";
+  import ProjectSelect from "$lib/ProjectSelect.svelte";
   import { projectsStore } from "./projectsStore.svelte";
 
   interface Props {
@@ -87,6 +87,7 @@
         onSubmit(
           {
             name: taskName != "" ? taskName : undefined,
+            projectId: projectId != "" ? projectId : undefined,
             start: selectedTimeRangeFullDate.time,
             stop: selectedTimeRangeFullDate.endTime,
           },
@@ -159,11 +160,10 @@
           </div>
         {/if}
         {#if showProjectField === undefined || showProjectField}
-          <DropdownWithSearch
-            items={projectsStore.projects.projects.filter((p) => !p.archived)}
-            selected={projectsStore.projectsByIds[""]
+          <ProjectSelect
+            selected={projectsStore.projectsByIds[projectId]
               ?.name || ""}
-            onSelection={(newId) => ""}
+            onSelection={(newId) => projectId = newId}
           />
         {/if}
         <div class="flex align-middle space-x-2">

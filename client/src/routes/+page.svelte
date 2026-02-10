@@ -1,11 +1,5 @@
 <script lang="ts">
-  import {
-    Button,
-    Input,
-    progressStepper,
-    Timepicker,
-    Toggle,
-  } from "flowbite-svelte";
+  import { Button, Input, Timepicker, Toggle } from "flowbite-svelte";
   import { PlayOutline, StopOutline } from "flowbite-svelte-icons";
 
   import {
@@ -25,7 +19,7 @@
   import type { Timer } from "../types";
   import { settings } from "./states.svelte";
   import EditableTimerEntry from "./EditableTimerEntry.svelte";
-  import DropdownWithSearch from "$lib/DropdownWithSearch.svelte";
+  import ProjectSelect from "$lib/ProjectSelect.svelte";
   import TimerDropdownMenuIcon from "$lib/TimerDropdownMenuIcon.svelte";
   import { projectsStore } from "./projectsStore.svelte";
 
@@ -181,10 +175,11 @@
   };
 
   const saveNewEntry = async (
-    arg: { name?: string; start: string; stop: string },
+    arg: { name?: string; projectId?: string; start: string; stop: string },
   ) => {
     const taskName = arg.name || "New Entry";
-    await webui.postNewTimer(taskName, arg.start, arg.stop);
+    const projId = arg.projectId || "NO_PROJECT";
+    await webui.postNewTimer(taskName, projId, arg.start, arg.stop);
     listOfTimers = JSON.parse(await webui.timers());
   };
 </script>
@@ -240,8 +235,7 @@
         {/if}
       </div>
       <div>
-        <DropdownWithSearch
-          items={projectsStore.projects.projects.filter((p) => !p.archived)}
+        <ProjectSelect
           selected={projectsStore.projectsByIds[status.projectId || ""]
             ?.name || ""}
           onSelection={(newId) => onActiveTimerProjectChange(newId)}
@@ -311,11 +305,11 @@
             {#if           (onlyNoProject && (!taskForDay.projectId ||
             taskForDay.projectId === "NO_PROJECT")) || !onlyNoProject}
               <div
-                class="flex-col gap-x-2 justify-between border-t-1 border-slate-300 py-1"
+                class="flex-col gap-x-2 justify-between border-t border-slate-300 py-1"
               >
                 <!-- Row 1 -->
                 <div class="flex justify-between">
-                  <div class="flex grow-1 justify-between">
+                  <div class="flex grow justify-between">
                     <div class="min-w-4">
                       <EditableDiv
                         text={taskForDay.name}
@@ -356,10 +350,7 @@
                   <div class="min-w-46 flex">
                     <!-- <FolderOutline /> -->
                     <div class="my-auto">
-                      <DropdownWithSearch
-                        items={projectsStore.projects.projects.filter((
-                          p,
-                        ) => !p.archived)}
+                      <ProjectSelect
                         selected={projectsStore
                           .projectsByIds[
                             taskForDay.projectId || ""

@@ -22,7 +22,12 @@ declare global {
     getActiveTimer: () => Promise<string>;
     stopActiveTimer: () => Promise<void>;
     timers: () => Promise<string>;
-    postNewTimer: (name: string, start: string, stop: string) => Promise<void>;
+    postNewTimer: (
+      name: string,
+      projectId: string,
+      start: string,
+      stop: string,
+    ) => Promise<void>;
     deleteTimer: (timerId: string) => Promise<string>;
     updateTimerName: (timerId: string, newName: string) => Promise<void>;
     setTimerRange: (
