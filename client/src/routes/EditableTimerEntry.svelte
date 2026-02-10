@@ -125,7 +125,6 @@
       ontoggle={onClose}
       bind:isOpen
     >
-      {startD} - {stopD}
       <div class="flex flex-col gap-y-2">
         {#if showNameField === undefined || showNameField}
           <div class="font-bold">
