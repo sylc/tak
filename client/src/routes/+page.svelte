@@ -30,6 +30,7 @@
   });
   let showInvert = $state(false);
   let onlyNoProject = $state(false);
+  let editableTimerEntryCpmKey = $state(Date.now());
 
   const onActiveTimerTimeChange = async (data?: { time: string }) => {
     if (data && status.start) {
@@ -177,6 +178,7 @@
   const saveNewEntry = async (
     arg: { name?: string; projectId?: string; start: string; stop: string },
   ) => {
+    editableTimerEntryCpmKey = Date.now();
     const taskName = arg.name || "New Entry";
     const projId = arg.projectId || "NO_PROJECT";
     await webui.postNewTimer(taskName, projId, arg.start, arg.stop);
@@ -318,17 +320,17 @@
                         withPencil="hover"
                       />
                     </div>
-                    {#key taskForDay.id}
-                      <EditableTimerEntry
-                        id={taskForDay.id}
-                        start={taskForDay.start}
-                        stop={taskForDay.stop}
-                        onSubmit={({ start, stop }) =>
-                          onEditTimeRange(taskForDay.id, start, stop)}
-                        showNameField={false}
-                        showProjectField={false}
-                      />
-                    {/key}
+                    <EditableTimerEntry
+                      id={taskForDay.id}
+                      start={taskForDay.start}
+                      stop={taskForDay.stop}
+                      onSubmit={({ start, stop }) => {
+                        onEditTimeRange(taskForDay.id, start, stop);
+                        editableTimerEntryCpmKey = Date.now();
+                      }}
+                      showNameField={false}
+                      showProjectField={false}
+                    />
                   </div>
                   <div class="flex gap-1 align-baseline">
                     <Button

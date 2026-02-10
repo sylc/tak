@@ -161,13 +161,15 @@ try {
 
   webui.bind("postNewTimer", async (e: WebUI.Event) => {
     const timerName = e.arg.string(0);
-    const start = e.arg.string(1);
-    const stop = e.arg.string(2);
-    console.log("new Timer", timerName, start, stop);
+    const projectId = e.arg.string(1);
+    const start = e.arg.string(2);
+    const stop = e.arg.string(3);
+    console.log("new Timer", timerName, projectId, start, stop);
 
     await timersX.createNewTimer({
       id: ulid(),
       name: timerName,
+      projectId,
       start,
       stop,
     });

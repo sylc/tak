@@ -8,7 +8,7 @@
   } from "flowbite-svelte";
   import Duration from "./Duration.svelte";
   import { formatDuration } from "./utils";
-  import { format, parse } from "date-fns";
+  import { format, parse, setHours, setMinutes } from "date-fns";
   import type { Snippet } from "svelte";
   import EditableDiv from "./EditableDiv.svelte";
   import ProjectSelect from "$lib/ProjectSelect.svelte";
@@ -46,22 +46,11 @@
   let isOpen = $state(false);
   let endOnSameDay = $state(true);
 
-  let selectedTimeRange = $state({
-    // svelte-ignore state_referenced_locally
+  let selectedTimeRange = $derived({
     time: format(startD, "HH:mm"),
-    // svelte-ignore state_referenced_locally
     endTime: format(stopD, "HH:mm"),
   });
   let isDirty = $state(false);
-
-  let selectedTimeRangeFullDate = $derived.by(() => {
-    return {
-      time: parse(selectedTimeRange.time, "HH:mm", new Date(startD))
-        .toISOString(),
-      endTime: parse(selectedTimeRange.endTime, "HH:mm", new Date(stopD))
-        .toISOString(),
-    };
-  });
 
   function handleRangeChange(
     data: { time: string; endTime: string; [key: string]: string },
@@ -72,10 +61,12 @@
         data.endTime !== selectedTimeRange.endTime
       ) {
         isDirty = true;
-        selectedTimeRange = {
-          time: data.time,
-          endTime: data.endTime,
-        };
+        const start = data.time.split(":");
+        const end = data.endTime.split(":");
+        startD = setHours(startD, parseInt(start[0]));
+        startD = setMinutes(startD, parseInt(start[1]));
+        stopD = setHours(stopD, parseInt(end[0]));
+        stopD = setMinutes(stopD, parseInt(end[1]));
       }
     }
   }
@@ -88,21 +79,11 @@
           {
             name: taskName != "" ? taskName : undefined,
             projectId: projectId != "" ? projectId : undefined,
-            start: selectedTimeRangeFullDate.time,
-            stop: selectedTimeRangeFullDate.endTime,
+            start: startD.toISOString(),
+            stop: stopD.toISOString(),
           },
         );
       }
-      // resetState
-      startD = new Date(start);
-      stopD = new Date(stop);
-      selectedTimeRange = {
-        time: format(startD, "HH:mm"),
-        endTime: format(stopD, "HH:mm"),
-      };
-      taskName = "";
-      endOnSameDay = true;
-      isDirty = false;
     }
   }
 
@@ -115,16 +96,12 @@
     isDirty = true;
     taskName = newName;
   }
-
-  let showInput = $state(false);
 </script>
 
 <div class="">
   <div
     id={"t-" + id}
-    onclick={() => {
-      showInput = true;
-    }}
+    onclick={() => {}}
     class="hover:bg-slate-200 hover:font-semibold px-2 rounded-md"
   >
     {#if children}
@@ -148,6 +125,7 @@
       ontoggle={onClose}
       bind:isOpen
     >
+      {startD} - {stopD}
       <div class="flex flex-col gap-y-2">
         {#if showNameField === undefined || showNameField}
           <div class="font-bold">
@@ -203,8 +181,8 @@
         {#if isDirty}
           <Duration
             duration={formatDuration(
-              selectedTimeRangeFullDate.time,
-              selectedTimeRangeFullDate.endTime,
+              startD.toISOString(),
+              stopD.toISOString(),
             )}
           />
         {/if}
