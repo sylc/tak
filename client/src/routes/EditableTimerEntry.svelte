@@ -11,14 +11,10 @@
   import {
     format,
     getDate,
-    getDay,
     getMonth,
     getYear,
-    parse,
     setDate,
-    setDay,
     setHours,
-    setISODay,
     setMinutes,
     setMonth,
     setYear,
@@ -85,8 +81,9 @@
     }
   }
 
-  function onClose(e: ToggleEvent) {
+  function onTogglePopover(e: ToggleEvent) {
     e.stopImmediatePropagation();
+    console.log(e);
     if (e.newState === "closed") {
       if (isDirty) {
         onSubmit(
@@ -98,6 +95,12 @@
           },
         );
         isDirty = false;
+      }
+    } else {
+      // @ts-expect-error
+      if (e.trigger.id === "t-new-entry") {
+        startD = new Date();
+        stopD = new Date();
       }
     }
   }
@@ -152,11 +155,11 @@
   {#key "t-" + id}
     <Popover
       class="text-sm min-w-96"
-      title=""
+      title={undefined}
       triggeredBy={`#t-${id}`}
       trigger="click"
       placement="bottom"
-      ontoggle={onClose}
+      ontoggle={onTogglePopover}
       bind:isOpen
     >
       <div class="flex flex-col gap-y-2 max-w-80">
