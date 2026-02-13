@@ -7,14 +7,16 @@
     onSubmit,
     withPencil,
     disabled,
+    showInputP,
   }: {
     text: string;
-    onSubmit: (newValue: string) => Promise<void>;
+    onSubmit: (newValue: string) => Promise<void> | void;
     withPencil?: "static" | "hover";
     disabled?: boolean;
+    showInputP?: boolean;
   } = $props();
 
-  let showInput = $state(false);
+  let showInput = $derived(showInputP);
   let newValue = $derived(text);
 
   $effect(() => {
@@ -52,6 +54,7 @@
       value={newValue}
       {onblur}
       autofocus
+      placeholder="Task name"
     >
   {:else}
     <div

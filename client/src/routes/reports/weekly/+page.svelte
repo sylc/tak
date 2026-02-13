@@ -21,7 +21,7 @@
   } from "flowbite-svelte-icons";
   import { addDays } from "date-fns";
   import Duration from "../../Duration.svelte";
-  import DropdownWithSearch from "$lib/DropdownWithSearch.svelte";
+  import ProjectSelect from "$lib/ProjectSelect.svelte";
 
   let weeklyReport: Record<string, WeeklyByProjectReport[]> = $state({});
   let days = $state({
@@ -191,10 +191,7 @@
                     {timer.name}
                   </div>
                   <div class="">
-                    <DropdownWithSearch
-                      items={projectsStore.projects.projects.filter((p) =>
-                        !p.archived
-                      )}
+                    <ProjectSelect
                       selected={projectsStore
                         .projectsByIds[proj.projectKey || ""]
                         ?.name || ""}

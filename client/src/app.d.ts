@@ -18,10 +18,16 @@ declare global {
       projectId?: string,
     ) => Promise<void>;
     setActiveTimerProject: (projectId: string) => Promise<void>;
-    reStartTimer: (exisitingTaskId: string) => Promise<void>;
+    reStartTimer: (existingTaskId: string) => Promise<void>;
     getActiveTimer: () => Promise<string>;
     stopActiveTimer: () => Promise<void>;
     timers: () => Promise<string>;
+    postNewTimer: (
+      name: string,
+      projectId: string,
+      start: string,
+      stop: string,
+    ) => Promise<void>;
     deleteTimer: (timerId: string) => Promise<string>;
     updateTimerName: (timerId: string, newName: string) => Promise<void>;
     setTimerRange: (

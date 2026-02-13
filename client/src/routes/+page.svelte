@@ -18,8 +18,8 @@
   import EditableDiv from "./EditableDiv.svelte";
   import type { Timer } from "../types";
   import { settings } from "./states.svelte";
-  import EditableDuration from "./EditableDuration.svelte";
-  import DropdownWithSearch from "$lib/DropdownWithSearch.svelte";
+  import EditableTimerEntry from "./EditableTimerEntry.svelte";
+  import ProjectSelect from "$lib/ProjectSelect.svelte";
   import TimerDropdownMenuIcon from "$lib/TimerDropdownMenuIcon.svelte";
   import { projectsStore } from "./projectsStore.svelte";
 
@@ -30,6 +30,7 @@
   });
   let showInvert = $state(false);
   let onlyNoProject = $state(false);
+  let editableTimerEntryCpmKey = $state(Date.now());
 
   const onActiveTimerTimeChange = async (data?: { time: string }) => {
     if (data && status.start) {
@@ -173,6 +174,16 @@
   const onTimerNameUpdate = async () => {
     await webui.updateActiveTimerName(status.name);
   };
+
+  const saveNewEntry = async (
+    arg: { name?: string; projectId?: string; start: string; stop: string },
+  ) => {
+    editableTimerEntryCpmKey = Date.now();
+    const taskName = arg.name || "New Entry";
+    const projId = arg.projectId || "NO_PROJECT";
+    await webui.postNewTimer(taskName, projId, arg.start, arg.stop);
+    listOfTimers = JSON.parse(await webui.timers());
+  };
 </script>
 
 <div class="flex flex-col" style="max-height: calc(100vh - 40px)">
@@ -226,8 +237,7 @@
         {/if}
       </div>
       <div>
-        <DropdownWithSearch
-          items={projectsStore.projects.projects.filter((p) => !p.archived)}
+        <ProjectSelect
           selected={projectsStore.projectsByIds[status.projectId || ""]
             ?.name || ""}
           onSelection={(newId) => onActiveTimerProjectChange(newId)}
@@ -268,11 +278,21 @@
       </div>
     </div>
   </div>
-  <div class="grow-1 overflow-auto">
+  <div class="grow overflow-auto">
     <hr />
-    <div class="pt-2 px-2">
+    <div class="pt-2 px-2 flex justify-between">
       <Toggle bind:checked={onlyNoProject} size="small"
       >Only tasks with No Project</Toggle>
+      <div class="cursor-pointer">
+        <EditableTimerEntry
+          id="new-entry"
+          start={(new Date()).toISOString()}
+          stop={(new Date()).toISOString()}
+          onSubmit={saveNewEntry}
+        >
+          + new entry
+        </EditableTimerEntry>
+      </div>
     </div>
     {#each tasksByDay as tDay}
       <div class="bg-white my-2 px-2">
@@ -287,11 +307,11 @@
             {#if           (onlyNoProject && (!taskForDay.projectId ||
             taskForDay.projectId === "NO_PROJECT")) || !onlyNoProject}
               <div
-                class="flex-col gap-x-2 justify-between border-t-1 border-slate-300 py-1"
+                class="flex-col gap-x-2 justify-between border-t border-slate-300 py-1"
               >
                 <!-- Row 1 -->
                 <div class="flex justify-between">
-                  <div class="flex grow-1 justify-between">
+                  <div class="flex grow justify-between">
                     <div class="min-w-4">
                       <EditableDiv
                         text={taskForDay.name}
@@ -300,15 +320,17 @@
                         withPencil="hover"
                       />
                     </div>
-                    {#key taskForDay.id}
-                      <EditableDuration
-                        id={taskForDay.id}
-                        start={taskForDay.start}
-                        stop={taskForDay.stop}
-                        onSubmit={(start, stop) =>
-                          onEditTimeRange(taskForDay.id, start, stop)}
-                      />
-                    {/key}
+                    <EditableTimerEntry
+                      id={taskForDay.id}
+                      start={taskForDay.start}
+                      stop={taskForDay.stop}
+                      onSubmit={({ start, stop }) => {
+                        onEditTimeRange(taskForDay.id, start, stop);
+                        editableTimerEntryCpmKey = Date.now();
+                      }}
+                      showNameField={false}
+                      showProjectField={false}
+                    />
                   </div>
                   <div class="flex gap-1 align-baseline">
                     <Button
@@ -330,10 +352,7 @@
                   <div class="min-w-46 flex">
                     <!-- <FolderOutline /> -->
                     <div class="my-auto">
-                      <DropdownWithSearch
-                        items={projectsStore.projects.projects.filter((
-                          p,
-                        ) => !p.archived)}
+                      <ProjectSelect
                         selected={projectsStore
                           .projectsByIds[
                             taskForDay.projectId || ""

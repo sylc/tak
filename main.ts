@@ -111,22 +111,13 @@ try {
   async function stopActive() {
     const activeTimer = (await kv.get<Timer>(["activeTimer"])).value;
     if (!activeTimer || !activeTimer.start) return;
-    await kv.atomic()
-      .set(["activeTimer"], null)
-      .set(["timers", activeTimer.id], {
+    await timersX.createNewTimer(
+      {
         ...activeTimer,
         stop: (new Date()).toISOString(),
-      })
-      .set(
-        [
-          TimersAdaptor.index_timers_by_start_date,
-          TimersAdaptor.compositeKeyStart({
-            start: activeTimer.start,
-            id: activeTimer.id,
-          }),
-        ],
-        activeTimer.id,
-      ).commit();
+      },
+      true,
+    );
   }
 
   ////////////////////////////////////////////////////
@@ -166,6 +157,22 @@ try {
     console.log("Assign project", timerId, projectId);
 
     await timersX.setProject(timerId, projectId);
+  });
+
+  webui.bind("postNewTimer", async (e: WebUI.Event) => {
+    const timerName = e.arg.string(0);
+    const projectId = e.arg.string(1);
+    const start = e.arg.string(2);
+    const stop = e.arg.string(3);
+    console.log("new Timer", timerName, projectId, start, stop);
+
+    await timersX.createNewTimer({
+      id: ulid(),
+      name: timerName,
+      projectId,
+      start,
+      stop,
+    });
   });
 
   /////////////////// Projects
