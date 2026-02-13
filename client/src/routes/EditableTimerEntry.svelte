@@ -83,7 +83,6 @@
 
   function onTogglePopover(e: ToggleEvent) {
     e.stopImmediatePropagation();
-    console.log(e);
     if (e.newState === "closed") {
       if (isDirty) {
         onSubmit(
