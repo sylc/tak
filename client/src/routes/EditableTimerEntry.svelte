@@ -8,7 +8,21 @@
   } from "flowbite-svelte";
   import Duration from "./Duration.svelte";
   import { formatDuration } from "./utils";
-  import { format, parse, setHours, setMinutes } from "date-fns";
+  import {
+    format,
+    getDate,
+    getDay,
+    getMonth,
+    getYear,
+    parse,
+    setDate,
+    setDay,
+    setHours,
+    setISODay,
+    setMinutes,
+    setMonth,
+    setYear,
+  } from "date-fns";
   import type { Snippet } from "svelte";
   import EditableDiv from "./EditableDiv.svelte";
   import ProjectSelect from "$lib/ProjectSelect.svelte";
@@ -83,18 +97,38 @@
             stop: stopD.toISOString(),
           },
         );
+        isDirty = false;
       }
     }
   }
 
-  function handleDateSelect(detail: DateOrRange) {
+  function handleDateSelect(detail: DateOrRange, type: "start" | "stop") {
     isDirty = true;
-    if (endOnSameDay) stopD = detail as Date;
+    let detailCopy = detail as Date;
+    if (type === "start") {
+      startD = setYear(startD, getYear(detailCopy));
+      startD = setMonth(startD, getMonth(detailCopy));
+      startD = setDate(startD, getDate(detailCopy));
+    }
+    if (endOnSameDay || type === "stop") {
+      stopD = setYear(stopD, getYear(detailCopy));
+      stopD = setMonth(stopD, getMonth(detailCopy));
+      stopD = setDate(stopD, getDate(detailCopy));
+    }
   }
 
   function handleTaskNameChange(newName: string) {
     isDirty = true;
     taskName = newName;
+  }
+
+  function toggleEndOnSameDay() {
+    endOnSameDay = !endOnSameDay;
+    if (endOnSameDay) {
+      stopD = setYear(stopD, getYear(startD));
+      stopD = setMonth(stopD, getMonth(startD));
+      stopD = setDate(stopD, getDate(startD));
+    }
   }
 </script>
 
@@ -117,7 +151,7 @@
   </div>
   {#key "t-" + id}
     <Popover
-      class="text-sm font-light"
+      class="text-sm min-w-96"
       title=""
       triggeredBy={`#t-${id}`}
       trigger="click"
@@ -125,7 +159,7 @@
       ontoggle={onClose}
       bind:isOpen
     >
-      <div class="flex flex-col gap-y-2">
+      <div class="flex flex-col gap-y-2 max-w-80">
         {#if showNameField === undefined || showNameField}
           <div class="font-bold">
             <EditableDiv
@@ -148,25 +182,27 @@
             Start date
           </p>
           <Datepicker
-            bind:value={startD}
-            onselect={handleDateSelect}
+            value={startD}
+            onselect={(newDate) => handleDateSelect(newDate, "start")}
             dateFormat={{ year: "numeric", month: "short", day: "2-digit" }}
           />
         </div>
-        <Toggle
-          checked={endOnSameDay}
-          onclick={() => endOnSameDay = !endOnSameDay}
-          size="small"
-          class="min-w-32"
-        >end on same day</Toggle>
+        <div>
+          <Toggle
+            checked={endOnSameDay}
+            onclick={toggleEndOnSameDay}
+            size="small"
+            class="max-w-42"
+          >end on same day</Toggle>
+        </div>
         {#if !endOnSameDay}
           <div class="flex align-middle space-x-2">
             <p class="">
               Stop date
             </p>
             <Datepicker
-              bind:value={stopD}
-              onselect={handleDateSelect}
+              value={stopD}
+              onselect={(newDate) => handleDateSelect(newDate, "stop")}
               dateFormat={{ year: "numeric", month: "short", day: "2-digit" }}
             />
           </div>
@@ -177,23 +213,48 @@
           value={selectedTimeRange.time}
           endValue={selectedTimeRange.endTime}
         />
-        {#if isDirty}
+        <div class="flex gap-2">
+          <div>
+            Duration:
+          </div>
           <Duration
             duration={formatDuration(
               startD.toISOString(),
               stopD.toISOString(),
             )}
           />
-        {/if}
-        <button
-          onclick={() => {
-            isDirty = false;
-            isOpen = false;
-          }}
-          class="w-full hover:font-semibold hover:bg-slate-200 border border-slate-500 pt mt-2 rounded-md"
-        >
-          Cancel
-        </button>
+          <div class="flex">
+            (
+            <Duration
+              duration={formatDuration(
+                startD.toISOString(),
+                stopD.toISOString(),
+              )}
+              type="hourFractions"
+            />
+            h)
+          </div>
+        </div>
+        <div class="flex gap-2">
+          <button
+            onclick={() => {
+              isDirty = false;
+              isOpen = false;
+            }}
+            class="w-full hover:font-semibold hover:bg-slate-200 border border-slate-500 pt mt-2 rounded-md"
+          >
+            Cancel
+          </button>
+          <button
+            disabled={!isDirty}
+            onclick={() => {
+              isOpen = false;
+            }}
+            class="bg-green-800 text-white w-full hover:font-semibold hover:bg-green-900 border border-slate-500 pt mt-2 rounded-md font-semibold disabled:bg-slate-600 disabled:txt-slate-500"
+          >
+            Save
+          </button>
+        </div>
       </div>
     </Popover>
   {/key}
